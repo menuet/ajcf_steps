@@ -1,8 +1,8 @@
 
 #pragma once
 
-#if !defined(MUSIFY_ACCOUNT_INPUT_OUTPUT_HPP)
-#define MUSIFY_ACCOUNT_INPUT_OUTPUT_HPP
+#if !defined(MUSIFY_HOLDALL_INPUT_OUTPUT_HPP)
+#define MUSIFY_HOLDALL_INPUT_OUTPUT_HPP
 
 #include <string>
 
@@ -18,4 +18,4 @@ namespace musify { namespace io {
 
 }} // namespace musify::io
 
-#endif // MUSIFY_ACCOUNT_INPUT_OUTPUT_HPP
+#endif // MUSIFY_HOLDALL_INPUT_OUTPUT_HPP

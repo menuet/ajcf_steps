@@ -1,4 +1,5 @@
 
+#include <holdall/input_output.hpp>
 #include <array>
 #include <fstream>
 #include <iostream>
@@ -11,34 +12,27 @@ namespace musify {
 
 } // namespace musify
 
+namespace mio = musify::io;
+
 int main()
 {
     std::cout << "Please log in\n";
 
-    std::cout << "What is your name ? ";
-    std::string name{};
-    std::cin >> name;
+    const auto name = mio::ask_question_get_string("What is your name");
 
-    std::cout << "What is your pin code ? ";
-    int pin_code{};
-    std::cin >> pin_code;
+    const auto pin_code = mio::ask_question_get_int("What is your pin code");
 
     if (name == musify::admin_name && pin_code == musify::admin_pin_code)
     {
         std::array<std::string, 5> artists_names{};
         unsigned int artists_count = 0U;
 
-        std::cout << "Would you like to add another artist to the database (Y/N) ? ";
-        char yes_no{};
-        std::cin >> yes_no;
+        auto yes_no = mio::ask_question_get_char("Would you like to add another artist to the database (Y/N)");
         bool add_another_artist = (yes_no == 'Y' || yes_no == 'y');
 
         while (add_another_artist)
         {
-            std::cout << "What is the new artist's name ? ";
-            std::string artist_name;
-            std::cin >> artist_name;
-            artists_names[artists_count] = artist_name;
+            artists_names[artists_count] = mio::ask_question_get_string("What is the new artist's name");
             ++artists_count;
 
             if (artists_count >= artists_names.size())
@@ -47,8 +41,7 @@ int main()
                 break;
             }
 
-            std::cout << "Would you like to add another artist to the database (Y/N) ? ";
-            std::cin >> yes_no;
+            yes_no = mio::ask_question_get_char("Would you like to add another artist to the database (Y/N)");
             add_another_artist = (yes_no == 'Y' || yes_no == 'y');
         }
 
