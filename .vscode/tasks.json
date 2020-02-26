@@ -1,0 +1,42 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Clean Project !!!",
+            "type": "shell",
+            "command": "git clean -xfd && git submodule foreach --recursive git clean -xfd"
+        },
+        {
+            "label": "Build Third-parties",
+            "type": "shell",
+            "windows": {
+                "command": "scripts\\shell\\build-thirdparties.bat"
+            },
+            "linux": {
+                "command": "./scripts/shell/build-thirdparties.sh"
+            }
+        },
+        {
+            "label": "Build Project",
+            "type": "shell",
+            "windows": {
+                "command": "scripts\\shell\\build-project.bat"
+            },
+            "linux": {
+                "command": "./scripts/shell/build-project.sh"
+            }
+        },
+        {
+            "label": "Test Project",
+            "type": "shell",
+            "windows": {
+                "command": "scripts\\shell\\test-project.bat"
+            },
+            "linux": {
+                "command": "./scripts/shell/test-project.sh"
+            }
+        }
+    ]
+}

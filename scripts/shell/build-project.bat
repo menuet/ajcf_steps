@@ -1,0 +1,18 @@
+
+SETLOCAL
+
+SET "PROJECT_ROOT_DIR=%~dp0..\.."
+
+IF NOT EXIST "%PROJECT_ROOT_DIR%\out" (MKDIR "%PROJECT_ROOT_DIR%\out")
+IF NOT EXIST "%PROJECT_ROOT_DIR%\out\build" (MKDIR "%PROJECT_ROOT_DIR%\out\build")
+IF NOT EXIST "%PROJECT_ROOT_DIR%\out\build\win" (MKDIR "%PROJECT_ROOT_DIR%\out\build\win")
+
+PUSHD "%PROJECT_ROOT_DIR%\out\build\win"
+
+cmake -A x64 -DCMAKE_VERBOSE_MAKEFILE=TRUE "-DCMAKE_TOOLCHAIN_FILE=%VCPKG_ROOT%\scripts\buildsystems\vcpkg.cmake" ..\..\..
+IF ERRORLEVEL 1 GOTO :BACKTOORIGINALDIR
+
+cmake --build . --config Debug
+
+:BACKTOORIGINALDIR
+POPD

@@ -1,0 +1,17 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "quickcheat.exe (bin\\quickcheat.exe)",
+      "name": "Quickcheat including all succeeding unit tests",
+      "args": [
+        "--success",
+        "--durations",
+        "yes"
+      ]
+    }
+  ]
+}

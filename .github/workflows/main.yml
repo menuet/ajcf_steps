@@ -1,0 +1,110 @@
+name: CI
+
+on: [push]
+
+jobs:
+  linux:
+    timeout-minutes: 10
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: dependencies
+        working-directory: ${{runner.workspace}}
+        shell: bash
+        run: |
+          echo downloading ninja
+          curl -fsSL -o ninja.zip https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-linux.zip
+          sudo 7z x ninja.zip -o/usr/local/bin
+          ninja --version
+          echo installing vcpkg dependencies here: $VCPKG_INSTALLATION_ROOT
+          vcpkg version
+          vcpkg install --triplet x64-linux catch2 fmt date tl-expected ms-gsl
+          echo creating build directory here: ${{runner.workspace}}/build
+          cmake --version
+          cmake -E make_directory ${{runner.workspace}}/build
+
+      - name: build
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: |
+          cmake -G "Ninja" "-DCMAKE_CXX_COMPILER=g++-9" "-DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" "-DCMAKE_BUILD_TYPE=Debug" "${{runner.workspace}}/ajcf_steps"
+          cmake --build . --config Debug
+
+      - name: test
+        working-directory: ${{runner.workspace}}/build
+        run: ctest -C Debug
+
+  windows:
+    timeout-minutes: 10
+
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: dependencies
+        working-directory: ${{runner.workspace}}
+        shell: bash
+        run: |
+          echo installing vcpkg dependencies here: $VCPKG_INSTALLATION_ROOT
+          vcpkg version
+          vcpkg install --triplet x64-windows catch2 fmt date tl-expected ms-gsl
+          echo creating build directory here: `pwd`/build
+          cmake --version
+          cmake -E make_directory build
+
+      - name: build
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: |
+          echo vcpkg cmake file is here: $VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake
+          cmake "-DCMAKE_TOOLCHAIN_FILE=$VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake" "-DCMAKE_BUILD_TYPE=Debug" "${{runner.workspace}}/ajcf_steps"
+          cmake --build . --config Debug
+
+      - name: test
+        working-directory: ${{runner.workspace}}/build
+        run: ctest -C Debug
+
+  macos:
+    timeout-minutes: 10
+
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: dependencies
+        working-directory: ${{runner.workspace}}
+        shell: bash
+        run: |
+          echo current directory: `pwd`
+          echo downloading ninja
+          curl -fsSL -o ninja.zip https://github.com/ninja-build/ninja/releases/download/v1.9.0/ninja-mac.zip
+          unzip ninja.zip
+          mv ninja /usr/local/bin
+          ninja --version
+          echo downloading vcpkg
+          git clone https://github.com/microsoft/vcpkg.git
+          cd vcpkg
+          ./bootstrap-vcpkg.sh
+          echo installing vcpkg dependencies here: ${{runner.workspace}}/vcpkg
+          ./vcpkg version
+          ./vcpkg install --triplet x64-osx catch2 fmt date tl-expected ms-gsl
+          echo creating build directory here: ${{runner.workspace}}/build
+          cmake --version
+          cmake -E make_directory "${{runner.workspace}}/build"
+
+      - name: build
+        working-directory: ${{runner.workspace}}/build
+        shell: bash
+        run: |
+          echo current directory: `pwd`
+          cmake "-DCMAKE_TOOLCHAIN_FILE=${{runner.workspace}}/vcpkg/scripts/buildsystems/vcpkg.cmake" "-DCMAKE_BUILD_TYPE=Debug" "${{runner.workspace}}/ajcf_steps"
+          cmake --build . --config Debug
+
+      - name: test
+        working-directory: ${{runner.workspace}}/build
+        run: ctest -C Debug
