@@ -1,10 +1,15 @@
 
+#include <array>
 #include <fstream>
 #include <iostream>
 #include <string>
 
-#define ADMIN_NAME "darkvador"
-#define ADMIN_PIN_CODE 1234
+namespace musify {
+
+    constexpr char admin_name[] = "darkvador";
+    constexpr int admin_pin_code = 1234;
+
+} // namespace musify
 
 int main()
 {
@@ -18,9 +23,9 @@ int main()
     int pin_code{};
     std::cin >> pin_code;
 
-    if (name == ADMIN_NAME && pin_code == ADMIN_PIN_CODE)
+    if (name == musify::admin_name && pin_code == musify::admin_pin_code)
     {
-        std::string artists_names[5]{};
+        std::array<std::string, 5> artists_names{};
         unsigned int artists_count = 0U;
 
         std::cout << "Would you like to add another artist to the database (Y/N) ? ";
@@ -35,6 +40,12 @@ int main()
             std::cin >> artist_name;
             artists_names[artists_count] = artist_name;
             ++artists_count;
+
+            if (artists_count >= artists_names.size())
+            {
+                std::cout << "You cannot add more than " << artists_names.size() << " artists to the database\n";
+                break;
+            }
 
             std::cout << "Would you like to add another artist to the database (Y/N) ? ";
             std::cin >> yes_no;
