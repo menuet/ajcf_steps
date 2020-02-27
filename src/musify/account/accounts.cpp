@@ -1,5 +1,6 @@
 
 #include "accounts.hpp"
+#include "input_output.hpp"
 #include <fmt/format.h>
 #include <cstdio>
 #include <iomanip>
@@ -9,64 +10,51 @@
 
 namespace musify { namespace accounts {
 
-    void display_account_with_cout(std::string name, std::string password, char gender, int age, double size)
+    Account create_account()
     {
+        std::cout << "Please create your account.\n";
+
+        Account account{};
+
+        account.name = io::ask_question_get_string("What is your name");
+
+        account.password = io::ask_question_get_string("What is your password");
+
+        const auto gender_char = io::ask_question_get_char("What is your gender (M/F)");
+        switch (gender_char)
+        {
+        case 'F':
+            account.gender = Gender::Female;
+            break;
+        case 'M':
+            account.gender = Gender::Male;
+            break;
+        default:
+            account.gender = Gender::Female;
+            break;
+        }
+
+        const int age = io::ask_question_get_int("What is your age (years)");
+        if (age >= 0)
+            account.age = static_cast<unsigned int>(age);
+        else
+            account.age = 99;
+
+        account.size = io::ask_question_get_double("What is your size (meters)");
+
+        return account;
+    }
+
+    void display_account(Account account)
+    {
+        const std::string gender_string = account.gender == Gender::Female ? "Female" : "Male";
+
         std::cout << "Thanks. Your account was successfully created:\n"
-                  << "Name: " << name << "\n"
-                  << "Password length: " << password.length() << "\n"
-                  << "Gender: " << gender << "\n"
-                  << "Age: " << age << " years\n"
-                  << "Size: " << std::setprecision(2) << std::fixed << size << " m\n";
-    }
-
-    void display_account_with_stringstream(std::string name, std::string password, char gender, int age, double size)
-    {
-        std::stringstream ss;
-        ss << "Thanks. Your account was successfully created:\n"
-           << "Name: " << name << "\n"
-           << "Password length: " << password.length() << "\n"
-           << "Gender: " << gender << "\n"
-           << "Age: " << age << " years\n"
-           << "Size: " << std::setprecision(2) << std::fixed << size << " m\n";
-        const std::string formatted_text = ss.str();
-        std::cout << formatted_text;
-    }
-
-    void display_account_with_printf(std::string name, std::string password, char gender, int age, double size)
-    {
-        std::printf(
-            "Thanks. Your account was successfully created:\n"
-            "Name: %s\n"
-            "Password length: %zu\n"
-            "Gender: %c\n"
-            "Age: %i years\n"
-            "Size: %.2f m\n",
-            name.c_str(), password.length(), gender, age, size);
-    }
-
-    void display_account_with_format(std::string name, std::string password, char gender, int age, double size)
-    {
-        const std::string formatted_text = fmt::format(
-            "Thanks. Your account was successfully created:\n"
-            "Name: {}\n"
-            "Password: {:*^{}}\n"
-            "Gender: {}\n"
-            "Age: {} years\n"
-            "Size: {:.2f} m\n",
-            name, "", password.length(), gender, age, size);
-        std::cout << formatted_text;
-    }
-
-    void display_account_with_format_to(std::string name, std::string password, char gender, int age, double size)
-    {
-        fmt::format_to(std::ostream_iterator<char>(std::cout),
-                       "Thanks. Your account was successfully created:\n"
-                       "Name: {}\n"
-                       "Password: {:*^{}}\n"
-                       "Gender: {}\n"
-                       "Age: {} years\n"
-                       "Size: {:.2f} m\n",
-                       name, "", password.length(), gender, age, size);
+                  << "Name: " << account.name << "\n"
+                  << "Password length: " << account.password.length() << "\n"
+                  << "Gender: " << gender_string << "\n"
+                  << "Age: " << account.age << " years\n"
+                  << "Size: " << std::setprecision(2) << std::fixed << account.size << " m\n";
     }
 
 }} // namespace musify::accounts

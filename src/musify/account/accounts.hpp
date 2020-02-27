@@ -5,14 +5,23 @@
 
 namespace musify { namespace accounts {
 
-    void display_account_with_cout(std::string name, std::string password, char gender, int age, double size);
+    enum class Gender
+    {
+        Female,
+        Male,
+    };
 
-    void display_account_with_stringstream(std::string name, std::string password, char gender, int age, double size);
+    struct Account
+    {
+        std::string name{};
+        std::string password{};
+        Gender gender{};
+        unsigned int age{};
+        double size{};
+    };
 
-    void display_account_with_printf(std::string name, std::string password, char gender, int age, double size);
+    Account create_account();
 
-    void display_account_with_format(std::string name, std::string password, char gender, int age, double size);
-
-    void display_account_with_format_to(std::string name, std::string password, char gender, int age, double size);
+    void display_account(Account account);
 
 }} // namespace musify::accounts
