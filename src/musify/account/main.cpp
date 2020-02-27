@@ -1,4 +1,5 @@
 
+#include "accounts.hpp"
 #include "input_output.hpp"
 #include <iostream>
 
@@ -18,12 +19,20 @@ int main()
 
     const auto size = mio::ask_question_get_double("What is your size (meters)");
 
-    std::cout << "Thanks. Your account was successfully created:\n"
-              << "Name: " << name << "\n"
-              << "Password length: " << password.length() << "\n"
-              << "Gender: " << gender << "\n"
-              << "Age: " << age << " years\n"
-              << "Size: " << size << " m\n";
+    std::cout << "\nDisplay with cout\n";
+    musify::accounts::display_account_with_cout(name, password, gender, age, size);
+
+    std::cout << "\nDisplay with stringstream\n";
+    musify::accounts::display_account_with_stringstream(name, password, gender, age, size);
+
+    std::cout << "\nDisplay with printf\n";
+    musify::accounts::display_account_with_printf(name, password, gender, age, size);
+
+    std::cout << "\nDisplay with format\n";
+    musify::accounts::display_account_with_format(name, password, gender, age, size);
+
+    std::cout << "\nDisplay with format_to\n";
+    musify::accounts::display_account_with_format_to(name, password, gender, age, size);
 
     return 0;
 }
