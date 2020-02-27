@@ -20,7 +20,7 @@ namespace musify { namespace accounts {
         double size{};
     };
 
-    Account create_account();
+    bool create_account(Account& account);
 
     void display_account(Account account);
 
