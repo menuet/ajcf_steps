@@ -4,6 +4,7 @@
 #include <fmt/format.h>
 #include <cctype>
 #include <cstdio>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
@@ -104,7 +105,7 @@ namespace musify { namespace accounts {
         return true;
     }
 
-    void display_account(Account account)
+    void display_account(const Account& account)
     {
         const std::string gender_string = account.gender == Gender::Female ? "Female" : "Male";
 
@@ -114,6 +115,22 @@ namespace musify { namespace accounts {
                   << "Gender: " << gender_string << "\n"
                   << "Age: " << account.age << " years\n"
                   << "Size: " << std::setprecision(2) << std::fixed << account.size << " m\n";
+    }
+
+    void save_account(const Account& account)
+    {
+        std::ofstream accounts_file{"accounts.txt", std::ios::app};
+        if (!accounts_file)
+        {
+            std::cerr << "Error: could not create or open the file\n";
+            return;
+        }
+
+        const char gender_char = account.gender == Gender::Female ? 'F' : 'M';
+        accounts_file << account.name << "," << account.password << "," << gender_char << "," << account.age << ","
+                      << account.size << "\n";
+
+        std::cout << "Thanks. Your account was successfully saved\n";
     }
 
 }} // namespace musify::accounts

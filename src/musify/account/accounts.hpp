@@ -22,6 +22,8 @@ namespace musify { namespace accounts {
 
     bool create_account(Account& account);
 
-    void display_account(Account account);
+    void display_account(const Account& account);
+
+    void save_account(const Account& account);
 
 }} // namespace musify::accounts
