@@ -1,39 +1,27 @@
 
 #include "input_output.hpp"
-#include <iostream>
+#include "input_output.impl.hpp"
 
 namespace musify { namespace io {
 
     std::string ask_question_get_string(std::string_view question)
     {
-        std::cout << question << " ? ";
-        std::string value{};
-        std::cin >> value;
-        return value;
+        return ask_question_get_string(std::cout, std::cin, question);
     }
 
     char ask_question_get_char(std::string_view question)
     {
-        std::cout << question << " ? ";
-        char value{};
-        std::cin >> value;
-        return value;
+        return ask_question_get_char(std::cout, std::cin, question);
     }
 
     int ask_question_get_int(std::string_view question)
     {
-        std::cout << question << " ? ";
-        int value{};
-        std::cin >> value;
-        return value;
+        return ask_question_get_int(std::cout, std::cin, question);
     }
 
     double ask_question_get_double(std::string_view question)
     {
-        std::cout << question << " ? ";
-        double value{};
-        std::cin >> value;
-        return value;
+        return ask_question_get_double(std::cout, std::cin, question);
     }
 
 }} // namespace musify::io
