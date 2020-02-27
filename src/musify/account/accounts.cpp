@@ -10,12 +10,16 @@
 #include <iterator>
 #include <sstream>
 
-
 namespace musify { namespace accounts {
 
     bool ask_name(std::string& name)
     {
         name = io::ask_question_get_string("What is your name");
+        if (name.empty())
+        {
+            std::cerr << "Error: Your name must not be empty\n";
+            return false;
+        }
         for (char c : name)
         {
             if (!std::isalpha(c) && !std::isblank(c))
@@ -30,6 +34,11 @@ namespace musify { namespace accounts {
     bool ask_password(std::string& password)
     {
         password = io::ask_question_get_string("What is your password");
+        if (password.empty())
+        {
+            std::cerr << "Error: Your password must not be empty\n";
+            return false;
+        }
         for (char c : password)
         {
             if (!std::isalnum(c))
