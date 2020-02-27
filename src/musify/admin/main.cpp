@@ -11,7 +11,9 @@ int main()
         return -1;
     }
 
-    const auto artists_names = musify::artists::ask_new_artists();
+    auto artists_names = musify::artists::ask_new_artists();
+
+    musify::artists::sort_new_artists(artists_names);
 
     musify::artists::save_new_artists(artists_names);
 

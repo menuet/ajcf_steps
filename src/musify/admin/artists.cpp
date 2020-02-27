@@ -1,6 +1,7 @@
 
 #include "artists.hpp"
 #include <holdall/input_output.hpp>
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 
@@ -10,7 +11,8 @@ namespace musify { namespace artists {
     {
         std::vector<std::string> artists_names{};
 
-        auto yes_no = io::ask_question_get_char("Would you like to add another artist to the database (Y/N)");
+        auto yes_no =
+            io::ask_question_get_char(std::string{"Would you like to add another artist to the database (Y/N)"});
         bool add_another_artist = (yes_no == 'Y' || yes_no == 'y');
 
         while (add_another_artist)
@@ -23,6 +25,13 @@ namespace musify { namespace artists {
         }
 
         return artists_names;
+    }
+
+    void sort_new_artists(std::vector<std::string>& artists_names)
+    {
+        const auto iter_begin = artists_names.begin();
+        const auto iter_end = artists_names.end();
+        std::sort(iter_begin, iter_end);
     }
 
     bool save_new_artists(const std::vector<std::string>& artists_names)
@@ -38,8 +47,11 @@ namespace musify { namespace artists {
         }
 
         std::cout << "Adding these artists to the database:\n";
-        for (const std::string& artist_name : artists_names)
+        const std::vector<std::string>::const_iterator iter_begin = artists_names.begin();
+        const std::vector<std::string>::const_iterator iter_end = artists_names.end();
+        for (auto iter = iter_begin; iter != iter_end; ++iter)
         {
+            const std::string& artist_name = *iter;
             std::cout << artist_name << '\n';
             artists_file << artist_name << '\n';
         }
