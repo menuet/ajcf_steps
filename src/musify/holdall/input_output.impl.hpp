@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 
 namespace musify { namespace io {
@@ -23,6 +24,8 @@ namespace musify { namespace io {
         std::istringstream iss(string_value);
         char value{};
         iss >> value;
+        if (iss.fail() || iss.peek() != std::stringstream::traits_type::eof())
+            throw std::domain_error{"Your input does not contain exactly one character"};
         return value;
     }
 
@@ -32,6 +35,8 @@ namespace musify { namespace io {
         std::istringstream iss(string_value);
         int value{};
         iss >> value;
+        if (iss.fail() || iss.peek() != std::stringstream::traits_type::eof())
+            throw std::domain_error{"Your input is empty or contains some non-numeric characters"};
         return value;
     }
 
@@ -42,6 +47,8 @@ namespace musify { namespace io {
         std::istringstream iss(string_value);
         double value{};
         iss >> value;
+        if (iss.fail() || iss.peek() != std::stringstream::traits_type::eof())
+            throw std::domain_error{"Your input is empty or contains some non-numeric characters"};
         return value;
     }
 

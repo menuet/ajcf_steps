@@ -77,10 +77,44 @@ namespace musify { namespace io {
         std::stringstream output_stream;
 
         // ACT
-        const auto result = ask_question_get_char(output_stream, input_stream, "What is your gender");
+        std::string exception_text{};
+        try
+        {
+            [[maybe_unused]] const auto result =
+                ask_question_get_char(output_stream, input_stream, "What is your gender");
+        }
+        catch (std::domain_error& exception)
+        {
+            exception_text = exception.what();
+        }
 
         // ASSERT
-        REQUIRE(result == 'a');
+        REQUIRE(exception_text == "Your input does not contain exactly one character");
+        REQUIRE((input_stream.good() || input_stream.eof()));
+        REQUIRE(input_stream.peek() == std::stringstream::traits_type::eof());
+        REQUIRE(output_stream.str() == "What is your gender ? ");
+    }
+
+    TEST_CASE("TEST musify::io::ask_question_get_char WITH empty text", "[io]")
+    {
+        // ARRANGE
+        std::stringstream input_stream{""};
+        std::stringstream output_stream;
+
+        // ACT
+        std::string exception_text{};
+        try
+        {
+            [[maybe_unused]] const auto result =
+                ask_question_get_char(output_stream, input_stream, "What is your gender");
+        }
+        catch (std::domain_error& exception)
+        {
+            exception_text = exception.what();
+        }
+
+        // ASSERT
+        REQUIRE(exception_text == "Your input does not contain exactly one character");
         REQUIRE((input_stream.good() || input_stream.eof()));
         REQUIRE(input_stream.peek() == std::stringstream::traits_type::eof());
         REQUIRE(output_stream.str() == "What is your gender ? ");
@@ -109,10 +143,42 @@ namespace musify { namespace io {
         std::stringstream output_stream;
 
         // ACT
-        const auto result = ask_question_get_int(output_stream, input_stream, "What is your age");
+        std::string exception_text{};
+        try
+        {
+            [[maybe_unused]] const auto result = ask_question_get_int(output_stream, input_stream, "What is your age");
+        }
+        catch (std::domain_error& exception)
+        {
+            exception_text = exception.what();
+        }
 
         // ASSERT
-        REQUIRE(result == 456);
+        REQUIRE(exception_text == "Your input is empty or contains some non-numeric characters");
+        REQUIRE((input_stream.good() || input_stream.eof()));
+        REQUIRE(input_stream.peek() == std::stringstream::traits_type::eof());
+        REQUIRE(output_stream.str() == "What is your age ? ");
+    }
+
+    TEST_CASE("TEST musify::io::ask_question_get_int WITH empty text", "[io]")
+    {
+        // ARRANGE
+        std::stringstream input_stream{""};
+        std::stringstream output_stream;
+
+        // ACT
+        std::string exception_text{};
+        try
+        {
+            [[maybe_unused]] const auto result = ask_question_get_int(output_stream, input_stream, "What is your age");
+        }
+        catch (std::domain_error& exception)
+        {
+            exception_text = exception.what();
+        }
+
+        // ASSERT
+        REQUIRE(exception_text == "Your input is empty or contains some non-numeric characters");
         REQUIRE((input_stream.good() || input_stream.eof()));
         REQUIRE(input_stream.peek() == std::stringstream::traits_type::eof());
         REQUIRE(output_stream.str() == "What is your age ? ");
@@ -141,10 +207,44 @@ namespace musify { namespace io {
         std::stringstream output_stream;
 
         // ACT
-        const auto result = ask_question_get_double(output_stream, input_stream, "What is your size");
+        std::string exception_text{};
+        try
+        {
+            [[maybe_unused]] const auto result =
+                ask_question_get_double(output_stream, input_stream, "What is your size");
+        }
+        catch (std::domain_error& exception)
+        {
+            exception_text = exception.what();
+        }
 
         // ASSERT
-        REQUIRE(result == Approx{1.75});
+        REQUIRE(exception_text == "Your input is empty or contains some non-numeric characters");
+        REQUIRE((input_stream.good() || input_stream.eof()));
+        REQUIRE(input_stream.peek() == std::stringstream::traits_type::eof());
+        REQUIRE(output_stream.str() == "What is your size ? ");
+    }
+
+    TEST_CASE("TEST musify::io::ask_question_get_double WITH empty text", "[io]")
+    {
+        // ARRANGE
+        std::stringstream input_stream{""};
+        std::stringstream output_stream;
+
+        // ACT
+        std::string exception_text{};
+        try
+        {
+            [[maybe_unused]] const auto result =
+                ask_question_get_double(output_stream, input_stream, "What is your size");
+        }
+        catch (std::domain_error& exception)
+        {
+            exception_text = exception.what();
+        }
+
+        // ASSERT
+        REQUIRE(exception_text == "Your input is empty or contains some non-numeric characters");
         REQUIRE((input_stream.good() || input_stream.eof()));
         REQUIRE(input_stream.peek() == std::stringstream::traits_type::eof());
         REQUIRE(output_stream.str() == "What is your size ? ");
