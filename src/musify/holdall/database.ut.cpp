@@ -53,4 +53,23 @@ namespace musify { namespace database {
         REQUIRE(fs::file_size(database_file_path) > 0);
     }
 
+    TEST_CASE("TEST musify::database::load_database WITH file containing a few lines", "[database]")
+    {
+        // ARRANGE
+        namespace fs = std::filesystem;
+        fs::path database_file_path{"test_database.txt"};
+        std::error_code ec{};
+        fs::remove(database_file_path, ec);
+        std::vector<std::string> lines{"Line 1", "Line 2", "Line 3", "Line 4"};
+        save_new_database_lines(database_file_path, lines);
+
+        // ACT
+        Database database;
+        const auto result = load_database(database_file_path, database);
+
+        // ASSERT
+        REQUIRE(result == LoadingResult::Ok);
+        REQUIRE(database == lines);
+    }
+
 }} // namespace musify::database

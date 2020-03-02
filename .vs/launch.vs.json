@@ -23,6 +23,15 @@
         "1234",
         "database.txt"
       ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "musify-browse.exe (bin\\musify-browse.exe)",
+      "name": "musify-browse with valid arguments",
+      "args": [
+        "database.txt"
+      ]
     }
   ]
 }
