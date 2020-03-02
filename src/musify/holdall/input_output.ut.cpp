@@ -250,4 +250,60 @@ namespace musify { namespace io {
         REQUIRE(output_stream.str() == "What is your size ? ");
     }
 
+    TEST_CASE("TEST musify::io::ask_question_get_yesno WITH Y", "[io]")
+    {
+        // ARRANGE
+        std::stringstream input_stream{"Y"};
+        std::stringstream output_stream;
+
+        // ACT
+        const auto result = ask_question_get_yesno(output_stream, input_stream, "Do you like C++");
+
+        // ASSERT
+        REQUIRE(result);
+        REQUIRE((input_stream.good() || input_stream.eof()));
+        REQUIRE(input_stream.peek() == std::stringstream::traits_type::eof());
+        REQUIRE(output_stream.str() == "Do you like C++ ? ");
+    }
+
+    TEST_CASE("TEST musify::io::ask_question_get_yesno WITH N", "[io]")
+    {
+        // ARRANGE
+        std::stringstream input_stream{"N"};
+        std::stringstream output_stream;
+
+        // ACT
+        const auto result = ask_question_get_yesno(output_stream, input_stream, "Do you like C++");
+
+        // ASSERT
+        REQUIRE(!result);
+        REQUIRE((input_stream.good() || input_stream.eof()));
+        REQUIRE(input_stream.peek() == std::stringstream::traits_type::eof());
+        REQUIRE(output_stream.str() == "Do you like C++ ? ");
+    }
+
+    TEST_CASE("TEST musify::io::ask_question_get_yesno WITH some dummy char", "[io]")
+    {
+        // ARRANGE
+        std::stringstream input_stream{"O"};
+        std::stringstream output_stream;
+
+        // ACT
+        std::string exception_text{};
+        try
+        {
+            [[maybe_unused]] const auto result = ask_question_get_yesno(output_stream, input_stream, "Do you like C++");
+        }
+        catch (std::domain_error& exception)
+        {
+            exception_text = exception.what();
+        }
+
+        // ASSERT
+        REQUIRE(exception_text == "Your input must be Y (yes) or N (no)");
+        REQUIRE((input_stream.good() || input_stream.eof()));
+        REQUIRE(input_stream.peek() == std::stringstream::traits_type::eof());
+        REQUIRE(output_stream.str() == "Do you like C++ ? ");
+    }
+
 }} // namespace musify::io

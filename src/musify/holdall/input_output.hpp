@@ -17,6 +17,8 @@ namespace musify { namespace io {
 
     double ask_question_get_double(std::string_view question);
 
+    bool ask_question_get_yesno(std::string_view question);
+
 }} // namespace musify::io
 
 #endif // MUSIFY_HOLDALL_INPUT_OUTPUT_HPP

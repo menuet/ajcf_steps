@@ -24,4 +24,9 @@ namespace musify { namespace io {
         return ask_question_get_double(std::cout, std::cin, question);
     }
 
+    bool ask_question_get_yesno(std::string_view question)
+    {
+        return ask_question_get_yesno(std::cout, std::cin, question);
+    }
+
 }} // namespace musify::io

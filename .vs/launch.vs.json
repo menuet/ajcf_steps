@@ -12,6 +12,17 @@
         "--durations",
         "yes"
       ]
+    },
+    {
+      "type": "default",
+      "project": "CMakeLists.txt",
+      "projectTarget": "musify-admin.exe (bin\\musify-admin.exe)",
+      "name": "musify-admin with valid arguments",
+      "args": [
+        "darkvador",
+        "1234",
+        "database.txt"
+      ]
     }
   ]
 }

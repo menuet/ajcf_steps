@@ -1,0 +1,32 @@
+#
+#  Syntax:
+#    Artist=name,start_year,rating,genre
+#    Album=name,artist_name,date
+#    Song=name,album_name,artist_name,duration
+#
+Artist=Oasis,1991,3.7,Pop
+Album=Morning Glory,Oasis,1995/10/02
+Song=Hello,Morning Glory,Oasis,3:22
+Song=Roll With It,Morning Glory,Oasis,3:59
+Song=Wonderwall,Morning Glory,Oasis,4:18
+Song=Hey Now,Morning Glory,Oasis,5:41
+Album=Definitely Maybe,Oasis,1994/08/29
+Song=Shakermaker,Definitely Maybe,Oasis,5:22
+Song=Live Forever,Definitely Maybe,Oasis,4:36
+Song=Columbia,Definitely Maybe,Oasis,6:17
+Artist=Coldplay,1996,4.1,Rock
+Album=Parachutes,Coldplay,2000/08/10
+Song=Shiver,Parachutes,Coldplay,5:04
+Song=Spies,Parachutes,Coldplay,5:18
+Album=A Rush of Blood to the Head,Coldplay,2002/08/26
+Song=Politik,A Rush of Blood to the Head,Coldplay,5:18
+Song=The Scientist,A Rush of Blood to the Head,Coldplay,5:09
+Song=Daylight,A Rush of Blood to the Head,Coldplay,5:27
+Artist=Supreme NTM,1989,3.9,Rap
+Album=Authentik,Supreme NTM,1991/06/03
+Song=Le Pouvoir,Authentik,Supreme NTM,4:36
+Song=Freestyle,Authentik,Supreme NTM,2:55
+Album=Supreme NTM,Supreme NTM,1998/04/20
+Song=Laisse pas trainer ton fils,Supreme NTM,Supreme NTM,3:58
+Song=Ma Benz,Supreme NTM,Supreme NTM,4:07
+Song=Pose ton Gun,Supreme NTM,Supreme NTM,3:40

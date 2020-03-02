@@ -52,4 +52,20 @@ namespace musify { namespace io {
         return value;
     }
 
+    inline bool ask_question_get_yesno(std::ostream& output_stream, std::istream& input_stream,
+                                       std::string_view question)
+    {
+        const auto char_value = ask_question_get_char(output_stream, input_stream, question);
+        switch (char_value)
+        {
+        case 'Y':
+        case 'y':
+            return true;
+        case 'N':
+        case 'n':
+            return false;
+        }
+        throw std::domain_error{"Your input must be Y (yes) or N (no)"};
+    }
+
 }} // namespace musify::io

@@ -1,28 +1,29 @@
 
 #include "admin.hpp"
-#include "artists.hpp"
+#include <holdall/database.hpp>
 #include <iostream>
 
-int main()
+int main(int argc, char* argv[])
 {
     try
     {
-        if (!musify::admin::log_in())
+        const auto database_file_path =
+            musify::admin::check_command_line_arguments_and_get_database_file_path(argc, argv);
+
+        const auto database_lines = musify::database::ask_new_database_lines();
+
+        if (!database_lines.empty())
         {
-            std::cout << "Sorry, you are not the administrator of Musify\n";
-            return -1;
+            std::cout << "Saving " << database_lines.size() << " lines to the database\n";
+
+            musify::database::save_new_database_lines(database_file_path, database_lines);
         }
-
-        auto artists_names = musify::artists::ask_new_artists();
-
-        musify::artists::sort_new_artists(artists_names);
-
-        musify::artists::save_new_artists(artists_names);
 
         return 0;
     }
     catch (const std::exception& e)
     {
         std::cerr << "An exceptional error occured: " << e.what() << '\n';
+        return -1;
     }
 }
