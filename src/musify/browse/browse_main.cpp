@@ -35,11 +35,45 @@ int main(int argc, char* argv[])
     case mdb::LoadingResult::IncompleteLine:
         std::cerr << "The database file contains an incomplete line\n";
         break;
+    case mdb::LoadingResult::DuplicateArtist:
+        std::cerr << "The database file contains a duplicate artist\n";
+        break;
+    case mdb::LoadingResult::UnknownArtist:
+        std::cerr << "The database file refers to an unknown artist\n";
+        break;
+    case mdb::LoadingResult::DuplicateAlbum:
+        std::cerr << "The database file contains a duplicate album\n";
+        break;
+    case mdb::LoadingResult::UnknownAlbum:
+        std::cerr << "The database file refers to an unknown album\n";
+        break;
+    case mdb::LoadingResult::DuplicateSong:
+        std::cerr << "The database file contains a duplicate song\n";
+        break;
     case mdb::LoadingResult::Ok:
         std::cout << "Database file's contents:\n";
         mdb::display_database(database);
         break;
     }
+
+    std::cout << '\n';
+    std::cout << "Searching for artist 'Oasis'... ";
+    if (const mdb::Artist* artist = mdb::find_artist(database, "Oasis"); artist)
+        std::cout << "Found: " << *artist << "\n";
+    else
+        std::cout << "Unknown artist\n";
+
+    std::cout << "Searching for Album 'Parachutes'... ";
+    if (const auto* album = mdb::find_album(database, "Parachutes"); album)
+        std::cout << "Found: " << *album << "\n";
+    else
+        std::cout << "Unknown album\n";
+
+    std::cout << "Searching for Song 'Daylight'... ";
+    if (const auto* song = mdb::find_song(database, "Daylight"); song)
+        std::cout << "Found: " << *song << "\n";
+    else
+        std::cout << "Unknown song\n";
 
     return static_cast<int>(result);
 }

@@ -56,10 +56,27 @@ namespace musify { namespace database {
         FileNotReadable,
         UnknownLineType,
         IncompleteLine,
+        DuplicateArtist,
+        UnknownArtist,
+        DuplicateAlbum,
+        UnknownAlbum,
+        DuplicateSong,
     };
 
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);
 
     void display_database(const Database& database);
+
+    const Artist* find_artist(const Database& database, const std::string& artist_name);
+
+    const Album* find_album(const Database& database, const std::string& album_name);
+
+    const Song* find_song(const Database& database, const std::string& song_name);
+
+    std::ostream& operator<<(std::ostream& output_stream, const Artist& artist);
+
+    std::ostream& operator<<(std::ostream& output_stream, const Album& album);
+
+    std::ostream& operator<<(std::ostream& output_stream, const Song& song);
 
 }} // namespace musify::database

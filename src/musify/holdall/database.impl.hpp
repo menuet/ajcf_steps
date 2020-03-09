@@ -46,10 +46,4 @@ namespace musify { namespace database {
 
     bool operator==(const Song& song1, const Song& song2);
 
-    std::ostream& operator<<(std::ostream& output_stream, const Artist& artist);
-
-    std::ostream& operator<<(std::ostream& output_stream, const Album& album);
-
-    std::ostream& operator<<(std::ostream& output_stream, const Song& song);
-
 }} // namespace musify::database

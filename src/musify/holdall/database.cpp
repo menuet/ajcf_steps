@@ -46,4 +46,59 @@ namespace musify { namespace database {
         display_music_entities(std::cout, database.songs);
     }
 
+    bool contains_artist(const Database& database, const std::string& artist_name)
+    {
+        return find_artist(database, artist_name) != nullptr;
+    }
+
+    const Artist* find_artist(const Database& database, const std::string& artist_name)
+    {
+        for (const Artist& artist : database.artists)
+        {
+            if (artist.name == artist_name)
+                return &artist;
+        }
+        return nullptr;
+    }
+
+    const Album* find_album(const Database& database, const std::string& album_name)
+    {
+        for (const Album& album : database.albums)
+        {
+            if (album.name == album_name)
+                return &album;
+        }
+        return nullptr;
+    }
+
+    const Song* find_song(const Database& database, const std::string& song_name)
+    {
+        for (const Song& song : database.songs)
+        {
+            if (song.name == song_name)
+                return &song;
+        }
+        return nullptr;
+    }
+
+    std::ostream& operator<<(std::ostream& output_stream, const Artist& artist)
+    {
+        output_stream << "{" << artist.name << ", " << artist.start_year << ", " << artist.rating << ", "
+                      << artist.genre << "}";
+        return output_stream;
+    }
+
+    std::ostream& operator<<(std::ostream& output_stream, const Album& album)
+    {
+        output_stream << "{" << album.name << ", " << album.artist_name << ", " << album.date << "}";
+        return output_stream;
+    }
+
+    std::ostream& operator<<(std::ostream& output_stream, const Song& song)
+    {
+        output_stream << "{" << song.name << ", " << song.album_name << ", " << song.artist_name << ", "
+                      << song.duration << "}";
+        return output_stream;
+    }
+
 }} // namespace musify::database

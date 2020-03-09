@@ -71,6 +71,8 @@ namespace musify { namespace database {
         const auto [name, year_rating_genre] = parse_until(name_year_rating_genre, ',');
         if (name.empty())
             return LoadingResult::IncompleteLine;
+        if (find_artist(database, name))
+            return LoadingResult::DuplicateArtist;
         const auto [year, rating_genre] = parse_until(year_rating_genre, ',');
         if (year.empty())
             return LoadingResult::IncompleteLine;
@@ -91,9 +93,13 @@ namespace musify { namespace database {
         const auto [name, artistname_date] = parse_until(name_artistname_date, ',');
         if (name.empty())
             return LoadingResult::IncompleteLine;
+        if (find_album(database, name))
+            return LoadingResult::DuplicateAlbum;
         const auto [artistname, date] = parse_until(artistname_date, ',');
         if (artistname.empty() || date.empty())
             return LoadingResult::IncompleteLine;
+        if (!find_artist(database, artistname))
+            return LoadingResult::UnknownArtist;
         Album album{};
         album.name = name;
         album.artist_name = artistname;
@@ -107,12 +113,18 @@ namespace musify { namespace database {
         const auto [name, albumname_artistname_duration] = parse_until(name_albumname_artistname_duration, ',');
         if (name.empty())
             return LoadingResult::IncompleteLine;
+        if (find_song(database, name))
+            return LoadingResult::DuplicateSong;
         const auto [albumname, artistname_duration] = parse_until(albumname_artistname_duration, ',');
         if (albumname.empty())
             return LoadingResult::IncompleteLine;
+        if (!find_album(database, albumname))
+            return LoadingResult::UnknownAlbum;
         const auto [artistname, duration] = parse_until(artistname_duration, ',');
         if (artistname.empty() || duration.empty())
             return LoadingResult::IncompleteLine;
+        if (!find_artist(database, artistname))
+            return LoadingResult::UnknownArtist;
         Song song{};
         song.name = name;
         song.album_name = albumname;
@@ -137,26 +149,6 @@ namespace musify { namespace database {
     {
         return song1.name == song2.name && song1.album_name == song2.album_name &&
                song1.artist_name == song2.artist_name && song1.duration == song2.duration;
-    }
-
-    std::ostream& operator<<(std::ostream& output_stream, const Artist& artist)
-    {
-        output_stream << "{" << artist.name << ", " << artist.start_year << ", " << artist.rating << ", "
-                      << artist.genre << "}";
-        return output_stream;
-    }
-
-    std::ostream& operator<<(std::ostream& output_stream, const Album& album)
-    {
-        output_stream << "{" << album.name << ", " << album.artist_name << ", " << album.date << "}";
-        return output_stream;
-    }
-
-    std::ostream& operator<<(std::ostream& output_stream, const Song& song)
-    {
-        output_stream << "{" << song.name << ", " << song.album_name << ", " << song.artist_name << ", "
-                      << song.duration << "}";
-        return output_stream;
     }
 
 }} // namespace musify::database
