@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <string_view>
 #include <filesystem>
 #include <string>
 #include <vector>
@@ -14,6 +15,8 @@ namespace musify { namespace database {
 
     struct Artist
     {
+        static constexpr std::string_view type_label{"Artist"};
+
         std::string name;
         std::string start_year;
         std::string rating;
@@ -22,6 +25,8 @@ namespace musify { namespace database {
 
     struct Album
     {
+        static constexpr std::string_view type_label{"Album"};
+
         std::string name;
         std::string artist_name;
         std::string date;
@@ -29,6 +34,8 @@ namespace musify { namespace database {
 
     struct Song
     {
+        static constexpr std::string_view type_label{"Song"};
+
         std::string name;
         std::string album_name;
         std::string artist_name;

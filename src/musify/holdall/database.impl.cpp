@@ -66,70 +66,6 @@ namespace musify { namespace database {
         return LoadingResult::UnknownLineType;
     }
 
-    void display_music_entities(std::ostream& output_stream, const std::string& entity_type,
-                                const std::vector<Artist>& music_entities)
-    {
-        output_stream << "-----------------\n";
-        unsigned int entity_index = 0;
-        for (const auto& artist : music_entities)
-        {
-            output_stream << entity_type << " #" << ++entity_index << ": "
-                          << "{" << artist.name << ", " << artist.start_year << ", " << artist.rating << ", "
-                          << artist.genre << "}"
-                          << "\n";
-            output_stream << "-----------------\n";
-        }
-        output_stream << "--> " << music_entities.size() << " " << entity_type << "s\n";
-        output_stream << "-----------------\n";
-    }
-
-    void display_music_entities(std::ostream& output_stream, const std::string& entity_type,
-                                const std::vector<Album>& music_entities)
-    {
-        output_stream << "-----------------\n";
-        unsigned int entity_index = 0;
-        for (const auto& album : music_entities)
-        {
-            output_stream << entity_type << " #" << ++entity_index << ": "
-                          << "{" << album.name << ", " << album.artist_name << ", " << album.date << "}"
-                          << "\n";
-            output_stream << "-----------------\n";
-        }
-        output_stream << "--> " << music_entities.size() << " " << entity_type << "s\n";
-        output_stream << "-----------------\n";
-    }
-
-    void display_music_entities(std::ostream& output_stream, const std::string& entity_type,
-                                const std::vector<Song>& music_entities)
-    {
-        output_stream << "-----------------\n";
-        unsigned int entity_index = 0;
-        for (const auto& song : music_entities)
-        {
-            output_stream << entity_type << " #" << ++entity_index << ": "
-                          << "{" << song.name << ", " << song.album_name << ", " << song.artist_name << ", "
-                          << song.duration << "}"
-                          << "\n";
-            output_stream << "-----------------\n";
-        }
-        output_stream << "--> " << music_entities.size() << " " << entity_type << "s\n";
-        output_stream << "-----------------\n";
-    }
-
-    void display_music_entities(std::ostream& output_stream, const std::string& entity_type,
-                                const std::vector<std::string>& music_entities)
-    {
-        output_stream << "-----------------\n";
-        unsigned int entity_index = 0;
-        for (const std::string& music_entity : music_entities)
-        {
-            output_stream << entity_type << " #" << ++entity_index << ": " << music_entity << "\n";
-            output_stream << "-----------------\n";
-        }
-        output_stream << "--> " << music_entities.size() << " " << entity_type << "s\n";
-        output_stream << "-----------------\n";
-    }
-
     LoadingResult parse_and_load_artist(std::string name_year_rating_genre, Database& database)
     {
         const auto [name, year_rating_genre] = parse_until(name_year_rating_genre, ',');
@@ -184,6 +120,43 @@ namespace musify { namespace database {
         song.duration = duration;
         database.songs.push_back(song);
         return LoadingResult::Ok;
+    }
+
+    bool operator==(const Artist& artist1, const Artist& artist2)
+    {
+        return artist1.name == artist2.name && artist1.start_year == artist2.start_year &&
+               artist1.rating == artist2.rating && artist1.genre == artist2.genre;
+    }
+
+    bool operator==(const Album& album1, const Album& album2)
+    {
+        return album1.name == album2.name && album1.artist_name == album2.artist_name && album1.date == album2.date;
+    }
+
+    bool operator==(const Song& song1, const Song& song2)
+    {
+        return song1.name == song2.name && song1.album_name == song2.album_name &&
+               song1.artist_name == song2.artist_name && song1.duration == song2.duration;
+    }
+
+    std::ostream& operator<<(std::ostream& output_stream, const Artist& artist)
+    {
+        output_stream << "{" << artist.name << ", " << artist.start_year << ", " << artist.rating << ", "
+                      << artist.genre << "}";
+        return output_stream;
+    }
+
+    std::ostream& operator<<(std::ostream& output_stream, const Album& album)
+    {
+        output_stream << "{" << album.name << ", " << album.artist_name << ", " << album.date << "}";
+        return output_stream;
+    }
+
+    std::ostream& operator<<(std::ostream& output_stream, const Song& song)
+    {
+        output_stream << "{" << song.name << ", " << song.album_name << ", " << song.artist_name << ", "
+                      << song.duration << "}";
+        return output_stream;
     }
 
 }} // namespace musify::database

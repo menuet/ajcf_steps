@@ -108,62 +108,32 @@ namespace musify { namespace database {
 
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
-
-        // Does not compile yet:
-        // REQUIRE(database.artists == std::vector<Artist>{{"Artist1", "2001", "4.5", "Rock"}});
-
-        REQUIRE(database.artists.size() == 1);
-        const Artist& artist = database.artists[0];
-        REQUIRE(artist.name == "Artist1");
-        REQUIRE(artist.start_year == "2001");
-        REQUIRE(artist.rating == "4.5");
-        REQUIRE(artist.genre == "Rock");
-
-        // Does not compile yet:
-        // REQUIRE(database.albums == std::vector<Album>{{"Album1", "Artist1", "2020/03/09"}});
-
-        REQUIRE(database.albums.size() == 1);
-        const Album& album = database.albums[0];
-        REQUIRE(album.name == "Album1");
-        REQUIRE(album.artist_name == "Artist1");
-        REQUIRE(album.date == "2020/03/09");
-
-        // Does not compile yet:
-        // REQUIRE(database.songs == std::vector<Song>{{"Song1", "Album1", "Artist1", "3:45"}});
-
-        REQUIRE(database.songs.size() == 1);
-        const Song& song = database.songs[0];
-        REQUIRE(song.name == "Song1");
-        REQUIRE(song.album_name == "Album1");
-        REQUIRE(song.artist_name == "Artist1");
-        REQUIRE(song.duration == "3:45");
-    }
-
-    TEST_CASE("TEST musify::database::display_music_entities with strings", "[database]")
-    {
-        // ARRANGE
-        std::stringstream output_stream;
-        std::vector<std::string> music_entities{"a1", "a2", "a3"};
-
-        // ACT
-        display_music_entities(output_stream, "Album", music_entities);
-
-        // ASSERT
-        REQUIRE(output_stream.str() ==
-                "-----------------\n"
-                "Album #1: a1\n"
-                "-----------------\n"
-                "Album #2: a2\n"
-                "-----------------\n"
-                "Album #3: a3\n"
-                "-----------------\n"
-                "--> 3 Albums\n"
-                "-----------------\n");
+        REQUIRE(database.artists == std::vector<Artist>{{"Artist1", "2001", "4.5", "Rock"}});
+        REQUIRE(database.albums == std::vector<Album>{{"Album1", "Artist1", "2020/03/09"}});
+        REQUIRE(database.songs == std::vector<Song>{{"Song1", "Album1", "Artist1", "3:45"}});
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")
     {
-        // TODO
+        // ARRANGE
+        std::stringstream output_stream;
+        std::vector<Artist> music_artists{
+            {"a1", "2000", "1.5", "Pop"}, {"a2", "2001", "3.", "Rock"}, {"a3", "2002", "5.0", "Jazz"}};
+
+        // ACT
+        display_music_entities(output_stream, music_artists);
+
+        // ASSERT
+        REQUIRE(output_stream.str() ==
+                "-----------------\n"
+                "Artist #1: {a1, 2000, 1.5, Pop}\n"
+                "-----------------\n"
+                "Artist #2: {a2, 2001, 3., Rock}\n"
+                "-----------------\n"
+                "Artist #3: {a3, 2002, 5.0, Jazz}\n"
+                "-----------------\n"
+                "--> 3 Artists\n"
+                "-----------------\n");
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with albums", "[database]")
@@ -183,7 +153,17 @@ namespace musify { namespace database {
 
     TEST_CASE("TEST musify::database::parse_and_load_album", "[database]")
     {
-        // TODO
+        // ARRANGE
+        Database database{};
+        database.artists.push_back({"Oasis", "1991", "3.7", "Pop"});
+
+        // ACT
+        const auto result = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);
+
+        // ASSERT
+        REQUIRE(result == LoadingResult::Ok);
+        REQUIRE(database.albums.size() == 1);
+        REQUIRE(database.albums[0] == Album{"Morning Glory", "Oasis", "1995/10/02"});
     }
 
     TEST_CASE("TEST musify::database::parse_and_load_song", "[database]")

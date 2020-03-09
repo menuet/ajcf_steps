@@ -20,22 +20,36 @@ namespace musify { namespace database {
 
     LoadingResult parse_and_load_database_line(const std::string& line, Database& database);
 
-    void display_music_entities(std::ostream& output_stream, const std::string& entity_type,
-                                const std::vector<Artist>& music_entities);
-
-    void display_music_entities(std::ostream& output_stream, const std::string& entity_type,
-                                const std::vector<Album>& music_entities);
-
-    void display_music_entities(std::ostream& output_stream, const std::string& entity_type,
-                                const std::vector<Song>& music_entities);
-
-    void display_music_entities(std::ostream& output_stream, const std::string& entity_type,
-                                const std::vector<std::string>& music_entities);
+    template <typename T>
+    inline void display_music_entities(std::ostream& output_stream, const std::vector<T>& music_entities)
+    {
+        output_stream << "-----------------\n";
+        unsigned int entity_index = 0;
+        for (const auto& entity : music_entities)
+        {
+            output_stream << T::type_label << " #" << ++entity_index << ": " << entity << "\n";
+            output_stream << "-----------------\n";
+        }
+        output_stream << "--> " << music_entities.size() << " " << T::type_label << "s\n";
+        output_stream << "-----------------\n";
+    }
 
     LoadingResult parse_and_load_artist(std::string name_year_rating_genre, Database& database);
 
     LoadingResult parse_and_load_album(std::string name_artistname_date, Database& database);
 
     LoadingResult parse_and_load_song(std::string name_albumname_artistname_duration, Database& database);
+
+    bool operator==(const Artist& artist1, const Artist& artist2);
+
+    bool operator==(const Album& album1, const Album& album2);
+
+    bool operator==(const Song& song1, const Song& song2);
+
+    std::ostream& operator<<(std::ostream& output_stream, const Artist& artist);
+
+    std::ostream& operator<<(std::ostream& output_stream, const Album& album);
+
+    std::ostream& operator<<(std::ostream& output_stream, const Song& song);
 
 }} // namespace musify::database

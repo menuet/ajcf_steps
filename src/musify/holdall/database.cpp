@@ -41,9 +41,9 @@ namespace musify { namespace database {
 
     void display_database(const Database& database)
     {
-        display_music_entities(std::cout, "Artist", database.artists);
-        display_music_entities(std::cout, "Album", database.albums);
-        display_music_entities(std::cout, "Song", database.songs);
+        display_music_entities(std::cout, database.artists);
+        display_music_entities(std::cout, database.albums);
+        display_music_entities(std::cout, database.songs);
     }
 
 }} // namespace musify::database
