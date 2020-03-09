@@ -29,6 +29,12 @@ int main(int argc, char* argv[])
     case mdb::LoadingResult::FileNotReadable:
         std::cerr << "The database file is not readable\n";
         break;
+    case mdb::LoadingResult::UnknownLineType:
+        std::cerr << "The database file contains a line of unknow type\n";
+        break;
+    case mdb::LoadingResult::IncompleteLine:
+        std::cerr << "The database file contains an incomplete line\n";
+        break;
     case mdb::LoadingResult::Ok:
         std::cout << "Database file's contents:\n";
         mdb::display_database(database);

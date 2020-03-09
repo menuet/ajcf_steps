@@ -32,23 +32,18 @@ namespace musify { namespace database {
         std::string database_line;
         while (std::getline(ifs, database_line))
         {
-            if (!database_line.empty())
-                database.push_back(database_line);
+            const LoadingResult loading_result = parse_and_load_database_line(database_line, database);
+            if (loading_result != LoadingResult::Ok)
+                return loading_result;
         }
         return LoadingResult::Ok;
     }
 
     void display_database(const Database& database)
     {
-        std::cout << "-----------------\n";
-        unsigned int line_index = 0;
-        for (const std::string& database_line : database)
-        {
-            std::cout << "Line #" << ++line_index << ": " << database_line << "\n";
-            std::cout << "-----------------\n";
-        }
-        std::cout << "--> " << database.size() << " lines\n";
-        std::cout << "-----------------\n";
+        display_music_entities(std::cout, "Artist", database.artists);
+        display_music_entities(std::cout, "Album", database.albums);
+        display_music_entities(std::cout, "Song", database.songs);
     }
 
 }} // namespace musify::database
