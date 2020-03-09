@@ -12,11 +12,34 @@ namespace musify { namespace database {
     void save_new_database_lines(const std::filesystem::path& database_file_path,
                                  const std::vector<std::string>& database_lines);
 
+    struct Artist
+    {
+        std::string name;
+        std::string start_year;
+        std::string rating;
+        std::string genre;
+    };
+
+    struct Album
+    {
+        std::string name;
+        std::string artist_name;
+        std::string date;
+    };
+
+    struct Song
+    {
+        std::string name;
+        std::string album_name;
+        std::string artist_name;
+        std::string duration;
+    };
+
     struct Database
     {
-        std::vector<std::string> artists;
-        std::vector<std::string> albums;
-        std::vector<std::string> songs;
+        std::vector<Artist> artists;
+        std::vector<Album> albums;
+        std::vector<Song> songs;
     };
 
     enum class LoadingResult

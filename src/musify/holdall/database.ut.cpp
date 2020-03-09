@@ -98,7 +98,8 @@ namespace musify { namespace database {
         fs::path database_file_path{"test_database.txt"};
         std::error_code ec{};
         fs::remove(database_file_path, ec);
-        std::vector<std::string> lines{"Artist=1", "Album=2", "Song=3", "# Comment", "Song=4", "Artist=5", "Song=6"};
+        std::vector<std::string> lines{"Artist=Artist1,2001,4.5,Rock", "Album=Album1,Artist1,2020/03/09",
+                                       "Song=Song1,Album1,Artist1,3:45"};
         save_new_database_lines(database_file_path, lines);
 
         // ACT
@@ -107,12 +108,38 @@ namespace musify { namespace database {
 
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
-        REQUIRE(database.artists == std::vector<std::string>{"1", "5"});
-        REQUIRE(database.albums == std::vector<std::string>{"2"});
-        REQUIRE(database.songs == std::vector<std::string>{"3", "4", "6"});
+
+        // Does not compile yet:
+        // REQUIRE(database.artists == std::vector<Artist>{{"Artist1", "2001", "4.5", "Rock"}});
+
+        REQUIRE(database.artists.size() == 1);
+        const Artist& artist = database.artists[0];
+        REQUIRE(artist.name == "Artist1");
+        REQUIRE(artist.start_year == "2001");
+        REQUIRE(artist.rating == "4.5");
+        REQUIRE(artist.genre == "Rock");
+
+        // Does not compile yet:
+        // REQUIRE(database.albums == std::vector<Album>{{"Album1", "Artist1", "2020/03/09"}});
+
+        REQUIRE(database.albums.size() == 1);
+        const Album& album = database.albums[0];
+        REQUIRE(album.name == "Album1");
+        REQUIRE(album.artist_name == "Artist1");
+        REQUIRE(album.date == "2020/03/09");
+
+        // Does not compile yet:
+        // REQUIRE(database.songs == std::vector<Song>{{"Song1", "Album1", "Artist1", "3:45"}});
+
+        REQUIRE(database.songs.size() == 1);
+        const Song& song = database.songs[0];
+        REQUIRE(song.name == "Song1");
+        REQUIRE(song.album_name == "Album1");
+        REQUIRE(song.artist_name == "Artist1");
+        REQUIRE(song.duration == "3:45");
     }
 
-    TEST_CASE("TEST musify::database::display_music_entities", "[database]")
+    TEST_CASE("TEST musify::database::display_music_entities with strings", "[database]")
     {
         // ARRANGE
         std::stringstream output_stream;
@@ -132,6 +159,36 @@ namespace musify { namespace database {
                 "-----------------\n"
                 "--> 3 Albums\n"
                 "-----------------\n");
+    }
+
+    TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")
+    {
+        // TODO
+    }
+
+    TEST_CASE("TEST musify::database::display_music_entities with albums", "[database]")
+    {
+        // TODO
+    }
+
+    TEST_CASE("TEST musify::database::display_music_entities with songs", "[database]")
+    {
+        // TODO
+    }
+
+    TEST_CASE("TEST musify::database::parse_and_load_artist", "[database]")
+    {
+        // TODO
+    }
+
+    TEST_CASE("TEST musify::database::parse_and_load_album", "[database]")
+    {
+        // TODO
+    }
+
+    TEST_CASE("TEST musify::database::parse_and_load_song", "[database]")
+    {
+        // TODO
     }
 
 }} // namespace musify::database
