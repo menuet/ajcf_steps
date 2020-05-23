@@ -98,11 +98,12 @@ namespace musify { namespace database {
         const auto [artistname, date] = parse_until(artistname_date, ',');
         if (artistname.empty() || date.empty())
             return LoadingResult::IncompleteLine;
-        if (!find_artist(database, artistname))
+        const auto artist = find_artist(database, artistname);
+        if (!artist)
             return LoadingResult::UnknownArtist;
         Album album{};
         album.name = name;
-        album.artist_name = artistname;
+        album.artist = artist;
         album.date = date;
         database.albums.push_back(album);
         return LoadingResult::Ok;
@@ -118,17 +119,19 @@ namespace musify { namespace database {
         const auto [albumname, artistname_duration] = parse_until(albumname_artistname_duration, ',');
         if (albumname.empty())
             return LoadingResult::IncompleteLine;
-        if (!find_album(database, albumname))
+        const auto album = find_album(database, albumname);
+        if (!album)
             return LoadingResult::UnknownAlbum;
         const auto [artistname, duration] = parse_until(artistname_duration, ',');
         if (artistname.empty() || duration.empty())
             return LoadingResult::IncompleteLine;
-        if (!find_artist(database, artistname))
+        const auto artist = find_artist(database, artistname);
+        if (!artist)
             return LoadingResult::UnknownArtist;
         Song song{};
         song.name = name;
-        song.album_name = albumname;
-        song.artist_name = artistname;
+        song.album = album;
+        song.artist = artist;
         song.duration = duration;
         database.songs.push_back(song);
         return LoadingResult::Ok;
@@ -142,13 +145,13 @@ namespace musify { namespace database {
 
     bool operator==(const Album& album1, const Album& album2)
     {
-        return album1.name == album2.name && album1.artist_name == album2.artist_name && album1.date == album2.date;
+        return album1.name == album2.name && album1.artist == album2.artist && album1.date == album2.date;
     }
 
     bool operator==(const Song& song1, const Song& song2)
     {
-        return song1.name == song2.name && song1.album_name == song2.album_name &&
-               song1.artist_name == song2.artist_name && song1.duration == song2.duration;
+        return song1.name == song2.name && song1.album == song2.album && song1.artist == song2.artist &&
+               song1.duration == song2.duration;
     }
 
 }} // namespace musify::database

@@ -28,7 +28,7 @@ namespace musify { namespace database {
         static constexpr std::string_view type_label{"Album"};
 
         std::string name;
-        std::string artist_name;
+        const Artist* artist;
         std::string date;
     };
 
@@ -37,8 +37,8 @@ namespace musify { namespace database {
         static constexpr std::string_view type_label{"Song"};
 
         std::string name;
-        std::string album_name;
-        std::string artist_name;
+        const Album* album;
+        const Artist* artist;
         std::string duration;
     };
 

@@ -2,6 +2,7 @@
 #include "database.hpp"
 #include "database.impl.hpp"
 #include "input_output.hpp"
+#include <cassert>
 #include <fstream>
 
 namespace musify { namespace database {
@@ -90,13 +91,16 @@ namespace musify { namespace database {
 
     std::ostream& operator<<(std::ostream& output_stream, const Album& album)
     {
-        output_stream << "{" << album.name << ", " << album.artist_name << ", " << album.date << "}";
+        assert(album.artist);
+        output_stream << "{" << album.name << ", " << album.artist->name << ", " << album.date << "}";
         return output_stream;
     }
 
     std::ostream& operator<<(std::ostream& output_stream, const Song& song)
     {
-        output_stream << "{" << song.name << ", " << song.album_name << ", " << song.artist_name << ", "
+        assert(song.artist);
+        assert(song.album);
+        output_stream << "{" << song.name << ", " << song.album->name << ", " << song.artist->name << ", "
                       << song.duration << "}";
         return output_stream;
     }

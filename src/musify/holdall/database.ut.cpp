@@ -109,8 +109,8 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
         REQUIRE(database.artists == std::vector<Artist>{{"Artist1", "2001", "4.5", "Rock"}});
-        REQUIRE(database.albums == std::vector<Album>{{"Album1", "Artist1", "2020/03/09"}});
-        REQUIRE(database.songs == std::vector<Song>{{"Song1", "Album1", "Artist1", "3:45"}});
+        REQUIRE(database.albums == std::vector<Album>{{"Album1", &database.artists[0], "2020/03/09"}});
+        REQUIRE(database.songs == std::vector<Song>{{"Song1", &database.albums[0], &database.artists[0], "3:45"}});
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")
@@ -163,7 +163,7 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
         REQUIRE(database.albums.size() == 1);
-        REQUIRE(database.albums[0] == Album{"Morning Glory", "Oasis", "1995/10/02"});
+        REQUIRE(database.albums[0] == Album{"Morning Glory", &database.artists[0], "1995/10/02"});
     }
 
     TEST_CASE("TEST musify::database::parse_and_load_song", "[database]")
