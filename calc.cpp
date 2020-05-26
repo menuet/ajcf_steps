@@ -1,4 +1,6 @@
-
+/*
+Rajout de quelques commentaires
+*/
 #include "calc.hpp"
 
 int mavar_globale;
