@@ -1,9 +1,7 @@
 
 #include <iostream>
 #include "calc.hpp"
-#include "calc.hpp"
-
-int calcul_double(int i);
+#include "calcsuper.hpp"
 
 int main()
 {
