@@ -12,9 +12,11 @@ g++ -shared -o libcalcshared.so calc.o calcsuper.o
 
 g++ -c test.cpp
 
-g++ -o exectest test.o -L. -lcalcstatic
+# g++ -o exectest test.o -L. -lcalcstatic
 g++ -o exectest test.o -L. -lcalcshared
 
 ------------------------------------------
 
 ./exectest
+
+# LD_LIBRARY_PATH=$(pwd) ./exectest
