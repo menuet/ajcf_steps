@@ -23,6 +23,19 @@ namespace musify { namespace database {
             database_file << database_line << '\n';
     }
 
+    static std::size_t compute_max_number_of_entities(std::ifstream& ifs)
+    {
+        std::string database_line;
+        std::size_t count{0};
+        while (ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n'))
+        {
+            ++count;
+        }
+        ifs.clear();
+        ifs.seekg(0, std::ios_base::beg);
+        return count;
+    }
+
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database)
     {
         if (!std::filesystem::is_regular_file(database_file_path))
@@ -30,6 +43,9 @@ namespace musify { namespace database {
         std::ifstream ifs{database_file_path.string()};
         if (ifs.fail())
             return LoadingResult::FileNotReadable;
+        const auto max_entities_count = compute_max_number_of_entities(ifs);
+        database.artists.reserve(max_entities_count);
+        database.albums.reserve(max_entities_count);
         std::string database_line;
         while (std::getline(ifs, database_line))
         {
