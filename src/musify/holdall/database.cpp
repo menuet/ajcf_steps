@@ -23,19 +23,6 @@ namespace musify { namespace database {
             database_file << database_line << '\n';
     }
 
-    static std::size_t compute_max_number_of_entities(std::ifstream& ifs)
-    {
-        std::string database_line;
-        std::size_t count{0};
-        while (ifs.ignore(std::numeric_limits<std::streamsize>::max(), '\n'))
-        {
-            ++count;
-        }
-        ifs.clear();
-        ifs.seekg(0, std::ios_base::beg);
-        return count;
-    }
-
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database)
     {
         if (!std::filesystem::is_regular_file(database_file_path))
@@ -43,9 +30,6 @@ namespace musify { namespace database {
         std::ifstream ifs{database_file_path.string()};
         if (ifs.fail())
             return LoadingResult::FileNotReadable;
-        const auto max_entities_count = compute_max_number_of_entities(ifs);
-        database.artists.reserve(max_entities_count);
-        database.albums.reserve(max_entities_count);
         std::string database_line;
         while (std::getline(ifs, database_line))
         {
@@ -56,10 +40,21 @@ namespace musify { namespace database {
         return LoadingResult::Ok;
     }
 
+    void unload_database(Database& database)
+    {
+        database.songs.clear();
+        for (Album* album : database.albums)
+            delete album;
+        database.albums.clear();
+        for (Artist* artist : database.artists)
+            delete artist;
+        database.artists.clear();
+    }
+
     void display_database(const Database& database)
     {
-        display_music_entities(std::cout, database.artists);
-        display_music_entities(std::cout, database.albums);
+        display_music_entities_pointers(std::cout, database.artists);
+        display_music_entities_pointers(std::cout, database.albums);
         display_music_entities(std::cout, database.songs);
     }
 
@@ -70,20 +65,20 @@ namespace musify { namespace database {
 
     const Artist* find_artist(const Database& database, const std::string& artist_name)
     {
-        for (const Artist& artist : database.artists)
+        for (const Artist* artist : database.artists)
         {
-            if (artist.name == artist_name)
-                return &artist;
+            if (artist->name == artist_name)
+                return artist;
         }
         return nullptr;
     }
 
     const Album* find_album(const Database& database, const std::string& album_name)
     {
-        for (const Album& album : database.albums)
+        for (const Album* album : database.albums)
         {
-            if (album.name == album_name)
-                return &album;
+            if (album->name == album_name)
+                return album;
         }
         return nullptr;
     }

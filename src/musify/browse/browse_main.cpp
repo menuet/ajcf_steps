@@ -75,5 +75,7 @@ int main(int argc, char* argv[])
     else
         std::cout << "Unknown song\n";
 
+    mdb::unload_database(database);
+
     return static_cast<int>(result);
 }

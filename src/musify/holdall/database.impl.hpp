@@ -34,6 +34,20 @@ namespace musify { namespace database {
         output_stream << "-----------------\n";
     }
 
+    template <typename T>
+    inline void display_music_entities_pointers(std::ostream& output_stream, const std::vector<T*>& music_entities)
+    {
+        output_stream << "-----------------\n";
+        unsigned int entity_index = 0;
+        for (const auto& entity : music_entities)
+        {
+            output_stream << T::type_label << " #" << ++entity_index << ": " << *entity << "\n";
+            output_stream << "-----------------\n";
+        }
+        output_stream << "--> " << music_entities.size() << " " << T::type_label << "s\n";
+        output_stream << "-----------------\n";
+    }
+
     LoadingResult parse_and_load_artist(std::string name_year_rating_genre, Database& database);
 
     LoadingResult parse_and_load_album(std::string name_artistname_date, Database& database);

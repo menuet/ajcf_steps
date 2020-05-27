@@ -44,8 +44,8 @@ namespace musify { namespace database {
 
     struct Database
     {
-        std::vector<Artist> artists;
-        std::vector<Album> albums;
+        std::vector<Artist*> artists;
+        std::vector<Album*> albums;
         std::vector<Song> songs;
     };
 
@@ -64,6 +64,8 @@ namespace musify { namespace database {
     };
 
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);
+
+    void unload_database(Database& database);
 
     void display_database(const Database& database);
 
