@@ -2,6 +2,7 @@
 #pragma once
 
 #include <iostream>
+#include <memory>
 #include <string>
 #include <utility>
 #include <vector>
@@ -35,7 +36,8 @@ namespace musify { namespace database {
     }
 
     template <typename T>
-    inline void display_music_entities_pointers(std::ostream& output_stream, const std::vector<T*>& music_entities)
+    inline void display_music_entities_pointers(std::ostream& output_stream,
+                                                const std::vector<std::unique_ptr<T>>& music_entities)
     {
         output_stream << "-----------------\n";
         unsigned int entity_index = 0;

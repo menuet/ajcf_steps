@@ -79,12 +79,12 @@ namespace musify { namespace database {
         const auto [rating, genre] = parse_until(rating_genre, ',');
         if (rating.empty() || genre.empty())
             return LoadingResult::IncompleteLine;
-        Artist* artist = new Artist{};
+        auto artist = std::make_unique<Artist>();
         artist->name = name;
         artist->start_year = year;
         artist->rating = rating;
         artist->genre = genre;
-        database.artists.push_back(artist);
+        database.artists.push_back(std::move(artist));
         return LoadingResult::Ok;
     }
 
@@ -101,11 +101,11 @@ namespace musify { namespace database {
         const auto artist = find_artist(database, artistname);
         if (!artist)
             return LoadingResult::UnknownArtist;
-        Album* album = new Album{};
+        auto album = std::make_unique<Album>();
         album->name = name;
         album->artist = artist;
         album->date = date;
-        database.albums.push_back(album);
+        database.albums.push_back(std::move(album));
         return LoadingResult::Ok;
     }
 

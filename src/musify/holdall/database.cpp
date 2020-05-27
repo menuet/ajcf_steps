@@ -40,17 +40,6 @@ namespace musify { namespace database {
         return LoadingResult::Ok;
     }
 
-    void unload_database(Database& database)
-    {
-        database.songs.clear();
-        for (Album* album : database.albums)
-            delete album;
-        database.albums.clear();
-        for (Artist* artist : database.artists)
-            delete artist;
-        database.artists.clear();
-    }
-
     void display_database(const Database& database)
     {
         display_music_entities_pointers(std::cout, database.artists);
@@ -65,20 +54,20 @@ namespace musify { namespace database {
 
     const Artist* find_artist(const Database& database, const std::string& artist_name)
     {
-        for (const Artist* artist : database.artists)
+        for (const auto& artist : database.artists)
         {
             if (artist->name == artist_name)
-                return artist;
+                return artist.get();
         }
         return nullptr;
     }
 
     const Album* find_album(const Database& database, const std::string& album_name)
     {
-        for (const Album* album : database.albums)
+        for (const auto& album : database.albums)
         {
             if (album->name == album_name)
-                return album;
+                return album.get();
         }
         return nullptr;
     }

@@ -3,6 +3,7 @@
 
 #include <string_view>
 #include <filesystem>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -44,8 +45,8 @@ namespace musify { namespace database {
 
     struct Database
     {
-        std::vector<Artist*> artists;
-        std::vector<Album*> albums;
+        std::vector<std::unique_ptr<Artist>> artists;
+        std::vector<std::unique_ptr<Album>> albums;
         std::vector<Song> songs;
     };
 
@@ -64,8 +65,6 @@ namespace musify { namespace database {
     };
 
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);
-
-    void unload_database(Database& database);
 
     void display_database(const Database& database);
 
