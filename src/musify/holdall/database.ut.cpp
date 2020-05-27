@@ -109,11 +109,11 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
         REQUIRE(database.artists.size() == 1);
-        REQUIRE(*database.artists[0] == Artist{"Artist1", "2001", "4.5", "Rock"});
+        REQUIRE(database.artists.begin()->second == Artist{"Artist1", "2001", "4.5", "Rock"});
         REQUIRE(database.albums.size() == 1);
-        REQUIRE(*database.albums[0] == Album{"Album1", database.artists[0].get(), "2020/03/09"});
-        REQUIRE(database.songs ==
-                std::vector<Song>{{"Song1", database.albums[0].get(), database.artists[0].get(), "3:45"}});
+        REQUIRE(database.albums.begin()->second == Album{"Album1", &database.artists.begin()->second, "2020/03/09"});
+        REQUIRE(database.songs == std::vector<Song>{{"Song1", &database.albums.begin()->second,
+                                                     &database.artists.begin()->second, "3:45"}});
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")
@@ -158,7 +158,7 @@ namespace musify { namespace database {
     {
         // ARRANGE
         Database database{};
-        database.artists.push_back(std::unique_ptr<Artist>(new Artist{"Oasis", "1991", "3.7", "Pop"}));
+        database.artists.insert({"Oasis", {"Oasis", "1991", "3.7", "Pop"}});
 
         // ACT
         const auto result = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);
@@ -166,8 +166,9 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
         REQUIRE(database.albums.size() == 1);
-        REQUIRE(*database.albums[0] == Album{"Morning Glory", database.artists[0].get(), "1995/10/02"});
-    }
+        REQUIRE(database.albums.begin()->second ==
+                Album{"Morning Glory", &database.artists.begin()->second, "1995/10/02"});
+    } // namespace database
 
     TEST_CASE("TEST musify::database::parse_and_load_song", "[database]")
     {

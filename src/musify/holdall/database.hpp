@@ -2,10 +2,19 @@
 #pragma once
 
 #include <string_view>
+#include <unordered_map>
 #include <filesystem>
-#include <memory>
+#include <map>
 #include <string>
 #include <vector>
+
+#if defined(TRY_RISKY_FIX)
+template <typename KeyT, typename DataT>
+using BintreeOrHashtable = std::unordered_map<KeyT, DataT>;
+#else
+template <typename KeyT, typename DataT>
+using BintreeOrHashtable = std::map<KeyT, DataT>;
+#endif
 
 namespace musify { namespace database {
 
@@ -45,8 +54,8 @@ namespace musify { namespace database {
 
     struct Database
     {
-        std::vector<std::unique_ptr<Artist>> artists;
-        std::vector<std::unique_ptr<Album>> albums;
+        BintreeOrHashtable<std::string, Artist> artists;
+        BintreeOrHashtable<std::string, Album> albums;
         std::vector<Song> songs;
     };
 

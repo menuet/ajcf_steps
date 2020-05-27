@@ -1,6 +1,5 @@
 
 #include "database.impl.hpp"
-#include "database.hpp"
 #include "input_output.impl.hpp"
 #include <exception>
 #include <fstream>
@@ -79,12 +78,7 @@ namespace musify { namespace database {
         const auto [rating, genre] = parse_until(rating_genre, ',');
         if (rating.empty() || genre.empty())
             return LoadingResult::IncompleteLine;
-        auto artist = std::make_unique<Artist>();
-        artist->name = name;
-        artist->start_year = year;
-        artist->rating = rating;
-        artist->genre = genre;
-        database.artists.push_back(std::move(artist));
+        database.artists.insert({name, {name, year, rating, genre}});
         return LoadingResult::Ok;
     }
 
@@ -101,11 +95,7 @@ namespace musify { namespace database {
         const auto artist = find_artist(database, artistname);
         if (!artist)
             return LoadingResult::UnknownArtist;
-        auto album = std::make_unique<Album>();
-        album->name = name;
-        album->artist = artist;
-        album->date = date;
-        database.albums.push_back(std::move(album));
+        database.albums.insert({name, {name, artist, date}});
         return LoadingResult::Ok;
     }
 

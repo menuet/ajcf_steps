@@ -11,6 +11,8 @@ add_library(musify-holdall
 
 target_link_libraries(musify-holdall PRIVATE common_settings)
 
+target_compile_definitions(musify-holdall PUBLIC TRY_RISKY_FIX)
+
 target_include_directories(musify-holdall INTERFACE ..)
 
 add_executable(musify-holdall-ut

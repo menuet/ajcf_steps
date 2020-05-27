@@ -42,8 +42,8 @@ namespace musify { namespace database {
 
     void display_database(const Database& database)
     {
-        display_music_entities_pointers(std::cout, database.artists);
-        display_music_entities_pointers(std::cout, database.albums);
+        display_music_entities(std::cout, database.artists);
+        display_music_entities(std::cout, database.albums);
         display_music_entities(std::cout, database.songs);
     }
 
@@ -54,22 +54,20 @@ namespace musify { namespace database {
 
     const Artist* find_artist(const Database& database, const std::string& artist_name)
     {
-        for (const auto& artist : database.artists)
-        {
-            if (artist->name == artist_name)
-                return artist.get();
-        }
-        return nullptr;
+        const auto iter = database.artists.find(artist_name);
+        if (iter == database.artists.end())
+            return nullptr;
+        const auto& artist = iter->second;
+        return &artist;
     }
 
     const Album* find_album(const Database& database, const std::string& album_name)
     {
-        for (const auto& album : database.albums)
-        {
-            if (album->name == album_name)
-                return album.get();
-        }
-        return nullptr;
+        const auto iter = database.albums.find(album_name);
+        if (iter == database.albums.end())
+            return nullptr;
+        const auto& albums = iter->second;
+        return &albums;
     }
 
     const Song* find_song(const Database& database, const std::string& song_name)

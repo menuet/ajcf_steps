@@ -1,11 +1,11 @@
 
 #pragma once
 
+#include "database.hpp"
 #include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
-#include <vector>
 
 namespace musify { namespace database {
 
@@ -35,15 +35,14 @@ namespace musify { namespace database {
         output_stream << "-----------------\n";
     }
 
-    template <typename T>
-    inline void display_music_entities_pointers(std::ostream& output_stream,
-                                                const std::vector<std::unique_ptr<T>>& music_entities)
+    template <typename K, typename T>
+    inline void display_music_entities(std::ostream& output_stream, const BintreeOrHashtable<K, T>& music_entities)
     {
         output_stream << "-----------------\n";
         unsigned int entity_index = 0;
         for (const auto& entity : music_entities)
         {
-            output_stream << T::type_label << " #" << ++entity_index << ": " << *entity << "\n";
+            output_stream << T::type_label << " #" << ++entity_index << ": " << entity.second << "\n";
             output_stream << "-----------------\n";
         }
         output_stream << "--> " << music_entities.size() << " " << T::type_label << "s\n";
