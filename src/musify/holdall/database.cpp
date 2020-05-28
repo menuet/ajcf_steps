@@ -83,7 +83,8 @@ namespace musify { namespace database {
     std::ostream& operator<<(std::ostream& output_stream, const Artist& artist)
     {
         output_stream << "{" << artist.name << ", " << artist.start_year << ", " << artist.rating << ", "
-                      << artist.genre << "}";
+                      << artist.genre << ", " << artist.albums.size() << " albums"
+                      << "}";
         return output_stream;
     }
 

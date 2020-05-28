@@ -109,7 +109,8 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
         REQUIRE(database.artists.size() == 1);
-        REQUIRE(database.artists.begin()->second == Artist{"Artist1", "2001", "4.5", "Rock"});
+        REQUIRE(database.artists.begin()->second ==
+                Artist{"Artist1", "2001", "4.5", "Rock", {&database.albums.begin()->second}});
         REQUIRE(database.albums.size() == 1);
         REQUIRE(database.albums.begin()->second == Album{"Album1", &database.artists.begin()->second, "2020/03/09"});
         REQUIRE(database.songs == std::vector<Song>{{"Song1", &database.albums.begin()->second,
@@ -121,7 +122,7 @@ namespace musify { namespace database {
         // ARRANGE
         std::stringstream output_stream;
         std::vector<Artist> music_artists{
-            {"a1", "2000", "1.5", "Pop"}, {"a2", "2001", "3.", "Rock"}, {"a3", "2002", "5.0", "Jazz"}};
+            {"a1", "2000", "1.5", "Pop", {}}, {"a2", "2001", "3.", "Rock", {}}, {"a3", "2002", "5.0", "Jazz", {}}};
 
         // ACT
         display_music_entities(output_stream, music_artists);
@@ -129,11 +130,11 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(output_stream.str() ==
                 "-----------------\n"
-                "Artist #1: {a1, 2000, 1.5, Pop}\n"
+                "Artist #1: {a1, 2000, 1.5, Pop, 0 albums}\n"
                 "-----------------\n"
-                "Artist #2: {a2, 2001, 3., Rock}\n"
+                "Artist #2: {a2, 2001, 3., Rock, 0 albums}\n"
                 "-----------------\n"
-                "Artist #3: {a3, 2002, 5.0, Jazz}\n"
+                "Artist #3: {a3, 2002, 5.0, Jazz, 0 albums}\n"
                 "-----------------\n"
                 "--> 3 Artists\n"
                 "-----------------\n");
@@ -158,7 +159,7 @@ namespace musify { namespace database {
     {
         // ARRANGE
         Database database{};
-        database.artists.insert({"Oasis", {"Oasis", "1991", "3.7", "Pop"}});
+        database.artists.insert({"Oasis", {"Oasis", "1991", "3.7", "Pop", {}}});
 
         // ACT
         const auto result = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);

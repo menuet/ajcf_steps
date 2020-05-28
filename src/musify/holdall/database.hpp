@@ -23,6 +23,8 @@ namespace musify { namespace database {
     void save_new_database_lines(const std::filesystem::path& database_file_path,
                                  const std::vector<std::string>& database_lines);
 
+    struct Album;
+
     struct Artist
     {
         static constexpr std::string_view type_label{"Artist"};
@@ -31,6 +33,7 @@ namespace musify { namespace database {
         std::string start_year;
         std::string rating;
         std::string genre;
+        std::vector<const Album*> albums;
     };
 
     struct Album

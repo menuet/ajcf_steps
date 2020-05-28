@@ -78,7 +78,7 @@ namespace musify { namespace database {
         const auto [rating, genre] = parse_until(rating_genre, ',');
         if (rating.empty() || genre.empty())
             return LoadingResult::IncompleteLine;
-        database.artists.insert({name, {name, year, rating, genre}});
+        database.artists.insert({name, {name, year, rating, genre, {}}});
         return LoadingResult::Ok;
     }
 
@@ -95,7 +95,10 @@ namespace musify { namespace database {
         const auto artist = find_artist(database, artistname);
         if (!artist)
             return LoadingResult::UnknownArtist;
-        database.albums.insert({name, {name, artist, date}});
+        const auto iter_and_result = database.albums.insert({name, {name, artist, date}});
+        const auto& album = iter_and_result.first->second;
+        Artist* mutable_artist = const_cast<Artist*>(artist);
+        mutable_artist->albums.push_back(&album);
         return LoadingResult::Ok;
     }
 
