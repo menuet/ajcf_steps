@@ -19,8 +19,9 @@ int main(int argc, char* argv[])
 
     std::cout << "Loading database file " << database_file_path << "...\n";
 
-    mdb::Database* database{nullptr};
-    const auto result = mdb::load_database(database_file_path, &database);
+    auto database_and_result = mdb::load_database(database_file_path);
+    const auto& database = database_and_result.first;
+    const auto& result = database_and_result.second;
     switch (result)
     {
     case mdb::LoadingResult::FileNotFound:
@@ -74,8 +75,6 @@ int main(int argc, char* argv[])
         std::cout << "Found: " << *song << "\n";
     else
         std::cout << "Unknown song\n";
-
-    mdb::release_database(database);
 
     return static_cast<int>(result);
 }

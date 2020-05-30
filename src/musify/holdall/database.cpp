@@ -24,65 +24,59 @@ namespace musify { namespace database {
             database_file << database_line << '\n';
     }
 
-    LoadingResult load_database(const std::filesystem::path& database_file_path, Database** database)
+    ConstDatabaseAndResult load_database(const std::filesystem::path& database_file_path)
     {
-        *database = nullptr;
         if (!std::filesystem::is_regular_file(database_file_path))
-            return LoadingResult::FileNotFound;
+            return {Database{}, LoadingResult::FileNotFound};
         std::ifstream ifs{database_file_path.string()};
         if (ifs.fail())
-            return LoadingResult::FileNotReadable;
+            return {Database{}, LoadingResult::FileNotReadable};
         std::string database_line;
-        auto db = std::make_unique<Database>();
+        Database database{};
         while (std::getline(ifs, database_line))
         {
-            const LoadingResult loading_result = parse_and_load_database_line(database_line, *db);
+            const LoadingResult loading_result = parse_and_load_database_line(database_line, database);
             if (loading_result != LoadingResult::Ok)
-                return loading_result;
+                return {Database{}, loading_result};
         }
-        *database = db.release();
-        return LoadingResult::Ok;
+        return {std::move(database), LoadingResult::Ok};
     }
 
-    void release_database(Database* database)
+    void display_database(const Database& database)
     {
-        delete database;
+        display_music_entities(std::cout, database.artists);
+        display_music_entities(std::cout, database.albums);
+        display_music_entities(std::cout, database.songs);
     }
 
-    void display_database(const Database* database)
+    bool contains_artist(const Database& database, const std::string& artist_name)
     {
-        assert(database);
-        display_music_entities(std::cout, database->artists);
-        display_music_entities(std::cout, database->albums);
-        display_music_entities(std::cout, database->songs);
+        return find_artist(database, artist_name) != nullptr;
     }
 
-    const Artist* find_artist(const Database* database, const std::string& artist_name)
+    const Artist* find_artist(const Database& database, const std::string& artist_name)
     {
-        assert(database);
-        const auto iter = database->artists.find(artist_name);
-        if (iter == database->artists.end())
+        const auto iter = database.artists.find(artist_name);
+        if (iter == database.artists.end())
             return nullptr;
         const auto& artist = iter->second;
         return &artist;
     }
 
-    const Album* find_album(const Database* database, const std::string& album_name)
+    const Album* find_album(const Database& database, const std::string& album_name)
     {
-        assert(database);
-        const auto iter = database->albums.find(album_name);
-        if (iter == database->albums.end())
+        const auto iter = database.albums.find(album_name);
+        if (iter == database.albums.end())
             return nullptr;
         const auto& albums = iter->second;
         return &albums;
     }
 
-    const Song* find_song(const Database* database, const std::string& song_name)
+    const Song* find_song(const Database& database, const std::string& song_name)
     {
-        assert(database);
-        const auto iter = std::find_if(database->songs.begin(), database->songs.end(),
+        const auto iter = std::find_if(database.songs.begin(), database.songs.end(),
                                        [&](const auto& song) { return song.name == song_name; });
-        if (iter == database->songs.end())
+        if (iter == database.songs.end())
             return nullptr;
         return &*iter;
     }

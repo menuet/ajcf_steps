@@ -56,7 +56,12 @@ namespace musify { namespace database {
         std::string duration;
     };
 
-    struct Database;
+    struct Database
+    {
+        BintreeOrHashtable<std::string, Artist> artists;
+        BintreeOrHashtable<std::string, Album> albums;
+        std::vector<Song> songs;
+    };
 
     enum class LoadingResult
     {
@@ -72,17 +77,17 @@ namespace musify { namespace database {
         DuplicateSong,
     };
 
-    LoadingResult load_database(const std::filesystem::path& database_file_path, Database** database);
+    using ConstDatabaseAndResult = std::pair<const Database, LoadingResult>;
 
-    void release_database(Database* database);
+    ConstDatabaseAndResult load_database(const std::filesystem::path& database_file_path);
 
-    void display_database(const Database* database);
+    void display_database(const Database& database);
 
-    const Artist* find_artist(const Database* database, const std::string& artist_name);
+    const Artist* find_artist(const Database& database, const std::string& artist_name);
 
-    const Album* find_album(const Database* database, const std::string& album_name);
+    const Album* find_album(const Database& database, const std::string& album_name);
 
-    const Song* find_song(const Database* database, const std::string& song_name);
+    const Song* find_song(const Database& database, const std::string& song_name);
 
     std::ostream& operator<<(std::ostream& output_stream, const Artist& artist);
 

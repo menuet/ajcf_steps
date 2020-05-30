@@ -70,7 +70,7 @@ namespace musify { namespace database {
         const auto [name, year_rating_genre] = parse_until(name_year_rating_genre, ',');
         if (name.empty())
             return LoadingResult::IncompleteLine;
-        if (find_artist(&database, name))
+        if (find_artist(database, name))
             return LoadingResult::DuplicateArtist;
         const auto [year, rating_genre] = parse_until(year_rating_genre, ',');
         if (year.empty())
@@ -87,12 +87,12 @@ namespace musify { namespace database {
         const auto [name, artistname_date] = parse_until(name_artistname_date, ',');
         if (name.empty())
             return LoadingResult::IncompleteLine;
-        if (find_album(&database, name))
+        if (find_album(database, name))
             return LoadingResult::DuplicateAlbum;
         const auto [artistname, date] = parse_until(artistname_date, ',');
         if (artistname.empty() || date.empty())
             return LoadingResult::IncompleteLine;
-        const auto artist = find_artist(&database, artistname);
+        const auto artist = find_artist(database, artistname);
         if (!artist)
             return LoadingResult::UnknownArtist;
         const auto iter_and_result = database.albums.insert({name, {name, artist, date}});
@@ -107,18 +107,18 @@ namespace musify { namespace database {
         const auto [name, albumname_artistname_duration] = parse_until(name_albumname_artistname_duration, ',');
         if (name.empty())
             return LoadingResult::IncompleteLine;
-        if (find_song(&database, name))
+        if (find_song(database, name))
             return LoadingResult::DuplicateSong;
         const auto [albumname, artistname_duration] = parse_until(albumname_artistname_duration, ',');
         if (albumname.empty())
             return LoadingResult::IncompleteLine;
-        const auto album = find_album(&database, albumname);
+        const auto album = find_album(database, albumname);
         if (!album)
             return LoadingResult::UnknownAlbum;
         const auto [artistname, duration] = parse_until(artistname_duration, ',');
         if (artistname.empty() || duration.empty())
             return LoadingResult::IncompleteLine;
-        const auto artist = find_artist(&database, artistname);
+        const auto artist = find_artist(database, artistname);
         if (!artist)
             return LoadingResult::UnknownArtist;
         Song song{};
