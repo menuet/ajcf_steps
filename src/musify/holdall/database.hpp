@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <map>
 #include <string>
+#include <utility>
 #include <vector>
 
 #if defined(TRY_RISKY_FIX)
@@ -55,12 +56,7 @@ namespace musify { namespace database {
         std::string duration;
     };
 
-    struct Database
-    {
-        BintreeOrHashtable<std::string, Artist> artists;
-        BintreeOrHashtable<std::string, Album> albums;
-        std::vector<Song> songs;
-    };
+    struct Database;
 
     enum class LoadingResult
     {
@@ -76,15 +72,17 @@ namespace musify { namespace database {
         DuplicateSong,
     };
 
-    LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);
+    LoadingResult load_database(const std::filesystem::path& database_file_path, Database** database);
 
-    void display_database(const Database& database);
+    void release_database(Database* database);
 
-    const Artist* find_artist(const Database& database, const std::string& artist_name);
+    void display_database(const Database* database);
 
-    const Album* find_album(const Database& database, const std::string& album_name);
+    const Artist* find_artist(const Database* database, const std::string& artist_name);
 
-    const Song* find_song(const Database& database, const std::string& song_name);
+    const Album* find_album(const Database* database, const std::string& album_name);
+
+    const Song* find_song(const Database* database, const std::string& song_name);
 
     std::ostream& operator<<(std::ostream& output_stream, const Artist& artist);
 

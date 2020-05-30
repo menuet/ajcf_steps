@@ -64,8 +64,8 @@ namespace musify { namespace database {
         save_new_database_lines(database_file_path, lines);
 
         // ACT
-        Database database;
-        const auto result = load_database(database_file_path, database);
+        Database* database{};
+        const auto result = load_database(database_file_path, &database);
 
         // ASSERT
         REQUIRE(result == LoadingResult::UnknownLineType);
@@ -84,8 +84,8 @@ namespace musify { namespace database {
         save_new_database_lines(database_file_path, lines);
 
         // ACT
-        Database database;
-        const auto result = load_database(database_file_path, database);
+        Database* database{};
+        const auto result = load_database(database_file_path, &database);
 
         // ASSERT
         REQUIRE(result == LoadingResult::IncompleteLine);
@@ -103,18 +103,19 @@ namespace musify { namespace database {
         save_new_database_lines(database_file_path, lines);
 
         // ACT
-        Database database;
-        const auto result = load_database(database_file_path, database);
+        Database* database{};
+        const auto result = load_database(database_file_path, &database);
 
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
-        REQUIRE(database.artists.size() == 1);
-        REQUIRE(database.artists.begin()->second ==
-                Artist{"Artist1", "2001", "4.5", "Rock", {&database.albums.begin()->second}});
-        REQUIRE(database.albums.size() == 1);
-        REQUIRE(database.albums.begin()->second == Album{"Album1", &database.artists.begin()->second, "2020/03/09"});
-        REQUIRE(database.songs == std::vector<Song>{{"Song1", &database.albums.begin()->second,
-                                                     &database.artists.begin()->second, "3:45"}});
+        REQUIRE(database->artists.size() == 1);
+        REQUIRE(database->artists.begin()->second ==
+                Artist{"Artist1", "2001", "4.5", "Rock", {&database->albums.begin()->second}});
+        REQUIRE(database->albums.size() == 1);
+        REQUIRE(database->albums.begin()->second == Album{"Album1", &database->artists.begin()->second, "2020/03/09"});
+        REQUIRE(database->songs == std::vector<Song>{{"Song1", &database->albums.begin()->second,
+                                                      &database->artists.begin()->second, "3:45"}});
+        release_database(database);
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")

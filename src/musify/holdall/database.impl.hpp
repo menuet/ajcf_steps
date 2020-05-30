@@ -15,6 +15,13 @@ namespace musify { namespace database {
     struct Album;
     struct Song;
 
+    struct Database
+    {
+        BintreeOrHashtable<std::string, Artist> artists;
+        BintreeOrHashtable<std::string, Album> albums;
+        std::vector<Song> songs;
+    };
+
     std::vector<std::string> ask_new_database_lines(std::ostream& output_stream, std::istream& input_stream);
 
     std::pair<std::string, std::string> parse_until(const std::string& text, char separator);
