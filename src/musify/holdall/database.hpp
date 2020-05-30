@@ -7,6 +7,7 @@
 #include <map>
 #include <string>
 #include <utility>
+#include <variant>
 #include <vector>
 
 #if defined(TRY_RISKY_FIX)
@@ -63,9 +64,9 @@ namespace musify { namespace database {
         std::vector<Song> songs;
     };
 
-    enum class LoadingResult
+    enum class LoadingError
     {
-        Ok = 0,
+        Unknown = 0,
         FileNotFound,
         FileNotReadable,
         UnknownLineType,
@@ -77,9 +78,9 @@ namespace musify { namespace database {
         DuplicateSong,
     };
 
-    using ConstDatabaseAndResult = std::pair<const Database, LoadingResult>;
+    using ConstDatabaseOrError = std::variant<const Database, LoadingError>;
 
-    ConstDatabaseAndResult load_database(const std::filesystem::path& database_file_path);
+    ConstDatabaseOrError load_database(const std::filesystem::path& database_file_path);
 
     void display_database(const Database& database);
 

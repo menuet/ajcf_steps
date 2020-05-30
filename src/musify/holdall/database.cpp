@@ -24,22 +24,22 @@ namespace musify { namespace database {
             database_file << database_line << '\n';
     }
 
-    ConstDatabaseAndResult load_database(const std::filesystem::path& database_file_path)
+    ConstDatabaseOrError load_database(const std::filesystem::path& database_file_path)
     {
         if (!std::filesystem::is_regular_file(database_file_path))
-            return {Database{}, LoadingResult::FileNotFound};
+            return LoadingError::FileNotFound;
         std::ifstream ifs{database_file_path.string()};
         if (ifs.fail())
-            return {Database{}, LoadingResult::FileNotReadable};
+            return LoadingError::FileNotReadable;
         std::string database_line;
         Database database{};
         while (std::getline(ifs, database_line))
         {
-            const LoadingResult loading_result = parse_and_load_database_line(database_line, database);
-            if (loading_result != LoadingResult::Ok)
-                return {Database{}, loading_result};
+            const auto loading_error_opt = parse_and_load_database_line(database_line, database);
+            if (loading_error_opt)
+                return *loading_error_opt;
         }
-        return {std::move(database), LoadingResult::Ok};
+        return std::move(database);
     }
 
     void display_database(const Database& database)

@@ -64,10 +64,12 @@ namespace musify { namespace database {
         save_new_database_lines(database_file_path, lines);
 
         // ACT
-        const auto database_and_result = load_database(database_file_path);
+        const auto database_or_error = load_database(database_file_path);
 
         // ASSERT
-        REQUIRE(database_and_result.second == LoadingResult::UnknownLineType);
+        const auto error_ptr = std::get_if<LoadingError>(&database_or_error);
+        REQUIRE(error_ptr);
+        REQUIRE(*error_ptr == LoadingError::UnknownLineType);
     }
 
     TEST_CASE(
@@ -83,10 +85,12 @@ namespace musify { namespace database {
         save_new_database_lines(database_file_path, lines);
 
         // ACT
-        const auto database_and_result = load_database(database_file_path);
+        const auto database_or_error = load_database(database_file_path);
 
         // ASSERT
-        REQUIRE(database_and_result.second == LoadingResult::IncompleteLine);
+        const auto error_ptr = std::get_if<LoadingError>(&database_or_error);
+        REQUIRE(error_ptr);
+        REQUIRE(*error_ptr == LoadingError::IncompleteLine);
     }
 
     TEST_CASE("TEST musify::database::load_database WITH file containing a few entities", "[database]")
@@ -101,10 +105,12 @@ namespace musify { namespace database {
         save_new_database_lines(database_file_path, lines);
 
         // ACT
-        const auto& [database, result] = load_database(database_file_path);
+        const auto database_or_error = load_database(database_file_path);
 
         // ASSERT
-        REQUIRE(result == LoadingResult::Ok);
+        const auto database_ptr = std::get_if<const Database>(&database_or_error);
+        REQUIRE(database_ptr);
+        const auto& database = *database_ptr;
         REQUIRE(database.artists.size() == 1);
         REQUIRE(database.artists.begin()->second ==
                 Artist{"Artist1", "2001", "4.5", "Rock", {&database.albums.begin()->second}});
@@ -159,10 +165,10 @@ namespace musify { namespace database {
         database.artists.insert({"Oasis", {"Oasis", "1991", "3.7", "Pop", {}}});
 
         // ACT
-        const auto result = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);
+        const auto error_opt = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);
 
         // ASSERT
-        REQUIRE(result == LoadingResult::Ok);
+        REQUIRE(!error_opt.has_value());
         REQUIRE(database.albums.size() == 1);
         REQUIRE(database.albums.begin()->second ==
                 Album{"Morning Glory", &database.artists.begin()->second, "1995/10/02"});
