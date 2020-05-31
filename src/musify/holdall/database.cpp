@@ -24,61 +24,105 @@ namespace musify { namespace database {
             database_file << database_line << '\n';
     }
 
-    ConstDatabaseOrError load_database(const std::filesystem::path& database_file_path)
+    LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database)
     {
         if (!std::filesystem::is_regular_file(database_file_path))
-            return LoadingError::FileNotFound;
+            return LoadingResult::FileNotFound;
         std::ifstream ifs{database_file_path.string()};
         if (ifs.fail())
-            return LoadingError::FileNotReadable;
+            return LoadingResult::FileNotReadable;
         std::string database_line;
-        Database database{};
         while (std::getline(ifs, database_line))
         {
-            const auto loading_error_opt = parse_and_load_database_line(database_line, database);
-            if (loading_error_opt)
-                return *loading_error_opt;
+            const LoadingResult loading_result = parse_and_load_database_line(database_line, database);
+            if (loading_result != LoadingResult::Ok)
+                return loading_result;
         }
-        return std::move(database);
+        return LoadingResult::Ok;
     }
 
-    void display_database(const Database& database)
+    void Database::display() const
     {
-        display_music_entities(std::cout, database.artists);
-        display_music_entities(std::cout, database.albums);
-        display_music_entities(std::cout, database.songs);
+        display_music_entities(std::cout, this->m_artists);
+        display_music_entities(std::cout, this->m_albums);
+        display_music_entities(std::cout, this->m_songs);
     }
 
-    bool contains_artist(const Database& database, const std::string& artist_name)
+    const Artist* Database::find_artist(const std::string& artist_name) const
     {
-        return find_artist(database, artist_name) != nullptr;
-    }
-
-    const Artist* find_artist(const Database& database, const std::string& artist_name)
-    {
-        const auto iter = database.artists.find(artist_name);
-        if (iter == database.artists.end())
+        const auto iter = this->m_artists.find(artist_name);
+        if (iter == this->m_artists.end())
             return nullptr;
         const auto& artist = iter->second;
         return &artist;
     }
 
-    const Album* find_album(const Database& database, const std::string& album_name)
+    const Album* Database::find_album(const std::string& album_name) const
     {
-        const auto iter = database.albums.find(album_name);
-        if (iter == database.albums.end())
+        const auto iter = this->m_albums.find(album_name);
+        if (iter == this->m_albums.end())
             return nullptr;
         const auto& albums = iter->second;
         return &albums;
     }
 
-    const Song* find_song(const Database& database, const std::string& song_name)
+    const Song* Database::find_song(const std::string& song_name) const
     {
-        const auto iter = std::find_if(database.songs.begin(), database.songs.end(),
-                                       [&](const auto& song) { return song.name == song_name; });
-        if (iter == database.songs.end())
-            return nullptr;
-        return &*iter;
+        for (const Song& song : this->m_songs)
+        {
+            if (song.name == song_name)
+                return &song;
+        }
+        return nullptr;
+    }
+
+    InsertionResult Database::insert_artist(std::string name, std::string start_year, std::string rating,
+                                            std::string genre)
+    {
+        assert(!name.empty());
+
+        if (this->find_artist(name))
+            return InsertionResult::DuplicateArtist;
+        this->m_artists.insert({name, {name, start_year, rating, genre, {}}});
+        return InsertionResult::Ok;
+    }
+
+    InsertionResult Database::insert_album(std::string name, std::string artist_name, std::string date)
+    {
+        assert(!name.empty());
+
+        if (find_album(name))
+            return InsertionResult::DuplicateAlbum;
+        const auto artist = find_artist(artist_name);
+        if (!artist)
+            return InsertionResult::UnknownArtist;
+        const auto iter_and_result = this->m_albums.insert({name, {name, artist, date}});
+        const auto& album = iter_and_result.first->second;
+        Artist* mutable_artist = const_cast<Artist*>(artist);
+        mutable_artist->albums.push_back(&album);
+        return InsertionResult::Ok;
+    }
+
+    InsertionResult Database::insert_song(std::string name, std::string album_name, std::string artist_name,
+                                          std::string duration)
+    {
+        assert(!name.empty());
+
+        if (find_song(name))
+            return InsertionResult::DuplicateSong;
+        const auto album = find_album(album_name);
+        if (!album)
+            return InsertionResult::UnknownAlbum;
+        const auto artist = find_artist(artist_name);
+        if (!artist)
+            return InsertionResult::UnknownArtist;
+        Song song{};
+        song.name = name;
+        song.album = album;
+        song.artist = artist;
+        song.duration = duration;
+        this->m_songs.push_back(song);
+        return InsertionResult::Ok;
     }
 
     std::ostream& operator<<(std::ostream& output_stream, const Artist& artist)

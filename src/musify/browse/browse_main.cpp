@@ -19,69 +19,61 @@ int main(int argc, char* argv[])
 
     std::cout << "Loading database file " << database_file_path << "...\n";
 
-    const auto database_or_error = mdb::load_database(database_file_path);
-
-    if (const mdb::LoadingError* const error_ptr = std::get_if<mdb::LoadingError>(&database_or_error); error_ptr)
+    mdb::Database database;
+    const auto result = mdb::load_database(database_file_path, database);
+    switch (result)
     {
-        switch (*error_ptr)
-        {
-        case mdb::LoadingError::FileNotFound:
-            std::cerr << "The database file does not exist\n";
-            break;
-        case mdb::LoadingError::FileNotReadable:
-            std::cerr << "The database file is not readable\n";
-            break;
-        case mdb::LoadingError::UnknownLineType:
-            std::cerr << "The database file contains a line of unknow type\n";
-            break;
-        case mdb::LoadingError::IncompleteLine:
-            std::cerr << "The database file contains an incomplete line\n";
-            break;
-        case mdb::LoadingError::DuplicateArtist:
-            std::cerr << "The database file contains a duplicate artist\n";
-            break;
-        case mdb::LoadingError::UnknownArtist:
-            std::cerr << "The database file refers to an unknown artist\n";
-            break;
-        case mdb::LoadingError::DuplicateAlbum:
-            std::cerr << "The database file contains a duplicate album\n";
-            break;
-        case mdb::LoadingError::UnknownAlbum:
-            std::cerr << "The database file refers to an unknown album\n";
-            break;
-        case mdb::LoadingError::DuplicateSong:
-            std::cerr << "The database file contains a duplicate song\n";
-            break;
-        case mdb::LoadingError::Unknown:
-            std::cerr << "Unknown error happened\n";
-            break;
-        }
-        return static_cast<int>(*error_ptr);
+    case mdb::LoadingResult::FileNotFound:
+        std::cerr << "The database file does not exist\n";
+        break;
+    case mdb::LoadingResult::FileNotReadable:
+        std::cerr << "The database file is not readable\n";
+        break;
+    case mdb::LoadingResult::UnknownLineType:
+        std::cerr << "The database file contains a line of unknow type\n";
+        break;
+    case mdb::LoadingResult::IncompleteLine:
+        std::cerr << "The database file contains an incomplete line\n";
+        break;
+    case mdb::LoadingResult::DuplicateArtist:
+        std::cerr << "The database file contains a duplicate artist\n";
+        break;
+    case mdb::LoadingResult::UnknownArtist:
+        std::cerr << "The database file refers to an unknown artist\n";
+        break;
+    case mdb::LoadingResult::DuplicateAlbum:
+        std::cerr << "The database file contains a duplicate album\n";
+        break;
+    case mdb::LoadingResult::UnknownAlbum:
+        std::cerr << "The database file refers to an unknown album\n";
+        break;
+    case mdb::LoadingResult::DuplicateSong:
+        std::cerr << "The database file contains a duplicate song\n";
+        break;
+    case mdb::LoadingResult::Ok:
+        std::cout << "Database file's contents:\n";
+        database.display();
+        break;
     }
-
-    const auto& database = std::get<const mdb::Database>(database_or_error);
-
-    std::cout << "Database file's contents:\n";
-    mdb::display_database(database);
 
     std::cout << '\n';
     std::cout << "Searching for artist 'Oasis'... ";
-    if (const mdb::Artist* artist = mdb::find_artist(database, "Oasis"); artist)
+    if (const mdb::Artist* artist = database.find_artist("Oasis"); artist)
         std::cout << "Found: " << *artist << "\n";
     else
         std::cout << "Unknown artist\n";
 
     std::cout << "Searching for Album 'Parachutes'... ";
-    if (const auto* album = mdb::find_album(database, "Parachutes"); album)
+    if (const auto* album = database.find_album("Parachutes"); album)
         std::cout << "Found: " << *album << "\n";
     else
         std::cout << "Unknown album\n";
 
     std::cout << "Searching for Song 'Daylight'... ";
-    if (const auto* song = mdb::find_song(database, "Daylight"); song)
+    if (const auto* song = database.find_song("Daylight"); song)
         std::cout << "Found: " << *song << "\n";
     else
         std::cout << "Unknown song\n";
 
-    return 0;
+    return static_cast<int>(result);
 }

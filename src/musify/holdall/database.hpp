@@ -6,8 +6,6 @@
 #include <filesystem>
 #include <map>
 #include <string>
-#include <utility>
-#include <variant>
 #include <vector>
 
 #if defined(TRY_RISKY_FIX)
@@ -57,38 +55,74 @@ namespace musify { namespace database {
         std::string duration;
     };
 
-    struct Database
+    enum class LoadingResult
     {
-        BintreeOrHashtable<std::string, Artist> artists;
-        BintreeOrHashtable<std::string, Album> albums;
-        std::vector<Song> songs;
-    };
-
-    enum class LoadingError
-    {
-        Unknown = 0,
-        FileNotFound,
-        FileNotReadable,
-        UnknownLineType,
-        IncompleteLine,
-        DuplicateArtist,
+        Ok = 0,
+        FileNotFound = 1,
+        FileNotReadable = 2,
+        UnknownLineType = 3,
+        IncompleteLine = 4,
+        DuplicateArtist = 5,
         UnknownArtist,
         DuplicateAlbum,
         UnknownAlbum,
         DuplicateSong,
     };
 
-    using ConstDatabaseOrError = std::variant<const Database, LoadingError>;
+    enum class InsertionResult
+    {
+        Ok = 0,
+        DuplicateArtist = 5,
+        UnknownArtist,
+        DuplicateAlbum,
+        UnknownAlbum,
+        DuplicateSong,
+    };
 
-    ConstDatabaseOrError load_database(const std::filesystem::path& database_file_path);
+    class Database
+    {
+    public:
+        using Artists = BintreeOrHashtable<std::string, Artist>;
+        using Albums = BintreeOrHashtable<std::string, Album>;
+        using Songs = std::vector<Song>;
 
-    void display_database(const Database& database);
+        void display() const;
 
-    const Artist* find_artist(const Database& database, const std::string& artist_name);
+        const Artist* find_artist(const std::string& artist_name) const;
 
-    const Album* find_album(const Database& database, const std::string& album_name);
+        const Album* find_album(const std::string& album_name) const;
 
-    const Song* find_song(const Database& database, const std::string& song_name);
+        const Song* find_song(const std::string& song_name) const;
+
+        const Artists& artists() const
+        {
+            return m_artists;
+        }
+
+        const Albums& albums() const
+        {
+            return m_albums;
+        }
+
+        const Songs& songs() const
+        {
+            return m_songs;
+        }
+
+        InsertionResult insert_artist(std::string name, std::string start_year, std::string rating, std::string genre);
+
+        InsertionResult insert_album(std::string name, std::string artist_name, std::string date);
+
+        InsertionResult insert_song(std::string name, std::string album_name, std::string artist_name,
+                                    std::string duration);
+
+    private:
+        BintreeOrHashtable<std::string, Artist> m_artists{};
+        BintreeOrHashtable<std::string, Album> m_albums{};
+        std::vector<Song> m_songs{};
+    };
+
+    LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);
 
     std::ostream& operator<<(std::ostream& output_stream, const Artist& artist);
 

@@ -64,12 +64,11 @@ namespace musify { namespace database {
         save_new_database_lines(database_file_path, lines);
 
         // ACT
-        const auto database_or_error = load_database(database_file_path);
+        Database database;
+        const auto result = load_database(database_file_path, database);
 
         // ASSERT
-        const auto error_ptr = std::get_if<LoadingError>(&database_or_error);
-        REQUIRE(error_ptr);
-        REQUIRE(*error_ptr == LoadingError::UnknownLineType);
+        REQUIRE(result == LoadingResult::UnknownLineType);
     }
 
     TEST_CASE(
@@ -85,12 +84,11 @@ namespace musify { namespace database {
         save_new_database_lines(database_file_path, lines);
 
         // ACT
-        const auto database_or_error = load_database(database_file_path);
+        Database database;
+        const auto result = load_database(database_file_path, database);
 
         // ASSERT
-        const auto error_ptr = std::get_if<LoadingError>(&database_or_error);
-        REQUIRE(error_ptr);
-        REQUIRE(*error_ptr == LoadingError::IncompleteLine);
+        REQUIRE(result == LoadingResult::IncompleteLine);
     }
 
     TEST_CASE("TEST musify::database::load_database WITH file containing a few entities", "[database]")
@@ -105,19 +103,19 @@ namespace musify { namespace database {
         save_new_database_lines(database_file_path, lines);
 
         // ACT
-        const auto database_or_error = load_database(database_file_path);
+        Database database;
+        const auto result = load_database(database_file_path, database);
 
         // ASSERT
-        const auto database_ptr = std::get_if<const Database>(&database_or_error);
-        REQUIRE(database_ptr);
-        const auto& database = *database_ptr;
-        REQUIRE(database.artists.size() == 1);
-        REQUIRE(database.artists.begin()->second ==
-                Artist{"Artist1", "2001", "4.5", "Rock", {&database.albums.begin()->second}});
-        REQUIRE(database.albums.size() == 1);
-        REQUIRE(database.albums.begin()->second == Album{"Album1", &database.artists.begin()->second, "2020/03/09"});
-        REQUIRE(database.songs == std::vector<Song>{{"Song1", &database.albums.begin()->second,
-                                                     &database.artists.begin()->second, "3:45"}});
+        REQUIRE(result == LoadingResult::Ok);
+        REQUIRE(database.artists().size() == 1);
+        REQUIRE(database.artists().begin()->second ==
+                Artist{"Artist1", "2001", "4.5", "Rock", {&database.albums().begin()->second}});
+        REQUIRE(database.albums().size() == 1);
+        REQUIRE(database.albums().begin()->second ==
+                Album{"Album1", &database.artists().begin()->second, "2020/03/09"});
+        REQUIRE(database.songs() == std::vector<Song>{{"Song1", &database.albums().begin()->second,
+                                                       &database.artists().begin()->second, "3:45"}});
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")
@@ -162,16 +160,16 @@ namespace musify { namespace database {
     {
         // ARRANGE
         Database database{};
-        database.artists.insert({"Oasis", {"Oasis", "1991", "3.7", "Pop", {}}});
+        database.insert_artist("Oasis", "1991", "3.7", "Pop");
 
         // ACT
-        const auto error_opt = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);
+        const auto result = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);
 
         // ASSERT
-        REQUIRE(!error_opt.has_value());
-        REQUIRE(database.albums.size() == 1);
-        REQUIRE(database.albums.begin()->second ==
-                Album{"Morning Glory", &database.artists.begin()->second, "1995/10/02"});
+        REQUIRE(result == LoadingResult::Ok);
+        REQUIRE(database.albums().size() == 1);
+        REQUIRE(database.albums().begin()->second ==
+                Album{"Morning Glory", &database.artists().begin()->second, "1995/10/02"});
     } // namespace database
 
     TEST_CASE("TEST musify::database::parse_and_load_song", "[database]")

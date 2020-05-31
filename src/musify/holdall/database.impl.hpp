@@ -10,8 +10,8 @@
 
 namespace musify { namespace database {
 
-    enum class LoadingError;
-    struct Database;
+    enum class LoadingResult;
+    class Database;
     struct Artist;
     struct Album;
     struct Song;
@@ -20,7 +20,7 @@ namespace musify { namespace database {
 
     std::pair<std::string, std::string> parse_until(const std::string& text, char separator);
 
-    std::optional<LoadingError> parse_and_load_database_line(const std::string& line, Database& database);
+    LoadingResult parse_and_load_database_line(const std::string& line, Database& database);
 
     template <typename T>
     inline void display_music_entities(std::ostream& output_stream, const std::vector<T>& music_entities)
@@ -50,11 +50,11 @@ namespace musify { namespace database {
         output_stream << "-----------------\n";
     }
 
-    std::optional<LoadingError> parse_and_load_artist(std::string name_year_rating_genre, Database& database);
+    LoadingResult parse_and_load_artist(std::string name_year_rating_genre, Database& database);
 
-    std::optional<LoadingError> parse_and_load_album(std::string name_artistname_date, Database& database);
+    LoadingResult parse_and_load_album(std::string name_artistname_date, Database& database);
 
-    std::optional<LoadingError> parse_and_load_song(std::string name_albumname_artistname_duration, Database& database);
+    LoadingResult parse_and_load_song(std::string name_albumname_artistname_duration, Database& database);
 
     bool operator==(const Artist& artist1, const Artist& artist2);
 
