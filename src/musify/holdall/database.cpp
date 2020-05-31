@@ -86,8 +86,8 @@ namespace musify { namespace database {
         return things;
     }
 
-    InsertionResult Database::insert_artist(std::string name, std::string start_year, std::string rating,
-                                            std::string genre)
+    InsertionResult Database::insert_artist(std::string name, strong::Year start_year, strong::Rating rating,
+                                            strong::Genre genre)
     {
         assert(!name.empty());
 
@@ -101,7 +101,7 @@ namespace musify { namespace database {
         return InsertionResult::Ok;
     }
 
-    InsertionResult Database::insert_album(std::string name, std::string artist_name, std::string date)
+    InsertionResult Database::insert_album(std::string name, std::string artist_name, strong::Date date)
     {
         assert(!name.empty());
 
@@ -123,7 +123,7 @@ namespace musify { namespace database {
     }
 
     InsertionResult Database::insert_song(std::string name, std::string album_name, std::string artist_name,
-                                          std::string duration)
+                                          strong::Duration duration)
     {
         assert(!name.empty());
 

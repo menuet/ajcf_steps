@@ -35,6 +35,9 @@ int main(int argc, char* argv[])
     case mdb::LoadingResult::IncompleteLine:
         std::cerr << "The database file contains an incomplete line\n";
         break;
+    case mdb::LoadingResult::ParsingError:
+        std::cerr << "The database file contains some non-parsable data\n";
+        break;
     case mdb::LoadingResult::DuplicateArtist:
         std::cerr << "The database file contains a duplicate artist\n";
         break;
@@ -87,9 +90,9 @@ int main(int argc, char* argv[])
             {
                 std::cout << " (albums: ";
                 for (const auto& artist_album : artist->albums())
-            {
+                {
                     std::cout << artist_album->name() << ", ";
-            }
+                }
                 std::cout << ')';
             }
             std::cout << '\n';

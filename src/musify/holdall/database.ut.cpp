@@ -6,6 +6,9 @@
 
 namespace musify { namespace database {
 
+    using namespace std::literals::chrono_literals;
+    using namespace date::literals;
+
     TEST_CASE("TEST musify::database::ask_new_database_lines WITH a few lines", "[database]")
     {
         // ARRANGE
@@ -109,20 +112,23 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
         REQUIRE(database.artists().size() == 1);
-        REQUIRE(database.artists().begin()->second == Artist{"Artist1", "2001", "4.5", "Rock"});
+        REQUIRE(database.artists().begin()->second ==
+                Artist{"Artist1", strong::Year{2001_y}, strong::Rating{4.5f}, strong::Genre::Rock});
         REQUIRE(database.albums().size() == 1);
         REQUIRE(database.albums().begin()->second ==
-                Album{"Album1", &database.artists().begin()->second, "2020/03/09"});
-        REQUIRE(database.songs() == std::list<Song>{{"Song1", &database.albums().begin()->second,
-                                                     &database.artists().begin()->second, "3:45"}});
+                Album{"Album1", &database.artists().begin()->second, strong::Date{2020_y / mar / 9}});
+        REQUIRE(database.songs() ==
+                std::list<Song>{{"Song1", &database.albums().begin()->second, &database.artists().begin()->second,
+                                 strong::Duration{3min + 45s}}});
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")
     {
         // ARRANGE
         std::stringstream output_stream;
-        std::vector<Artist> music_artists{
-            {"a1", "2000", "1.5", "Pop"}, {"a2", "2001", "3.", "Rock"}, {"a3", "2002", "5.0", "Jazz"}};
+        std::vector<Artist> music_artists{{"a1", strong::Year{2000_y}, strong::Rating{1.5f}, strong::Genre::Pop},
+                                          {"a2", strong::Year{2001_y}, strong::Rating{3.f}, strong::Genre::Rock},
+                                          {"a3", strong::Year{2002_y}, strong::Rating{5.0f}, strong::Genre::Jazz}};
 
         // ACT
         display_music_entities(output_stream, music_artists);
@@ -132,7 +138,7 @@ namespace musify { namespace database {
                 "-----------------\n"
                 "Artist #1: {{a1, Artist}, 2000, 1.5, Pop, 0 albums}\n"
                 "-----------------\n"
-                "Artist #2: {{a2, Artist}, 2001, 3., Rock, 0 albums}\n"
+                "Artist #2: {{a2, Artist}, 2001, 3.0, Rock, 0 albums}\n"
                 "-----------------\n"
                 "Artist #3: {{a3, Artist}, 2002, 5.0, Jazz, 0 albums}\n"
                 "-----------------\n"
@@ -159,7 +165,7 @@ namespace musify { namespace database {
     {
         // ARRANGE
         Database database{};
-        database.insert_artist("Oasis", "1991", "3.7", "Pop");
+        database.insert_artist("Oasis", strong::Year{1991_y}, strong::Rating{3.7f}, strong::Genre::Pop);
 
         // ACT
         const auto result = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);
@@ -168,7 +174,7 @@ namespace musify { namespace database {
         REQUIRE(result == LoadingResult::Ok);
         REQUIRE(database.albums().size() == 1);
         REQUIRE(database.albums().begin()->second ==
-                Album{"Morning Glory", &database.artists().begin()->second, "1995/10/02"});
+                Album{"Morning Glory", &database.artists().begin()->second, strong::Date{1995_y / oct / 2}});
     } // namespace database
 
     TEST_CASE("TEST musify::database::parse_and_load_song", "[database]")
@@ -180,14 +186,14 @@ namespace musify { namespace database {
     {
         // ARRANGE
         Database database{};
-        database.insert_artist("U2", "1976", "4.5", "Rock");
-        database.insert_album("War", "U2", "1983/03/21");
-        database.insert_song("Sunday Bloody Sunday", "War", "U2", "4:40");
+        database.insert_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock);
+        database.insert_album("War", "U2", strong::Date{1983_y / 03 / 21});
+        database.insert_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s});
         // Insert more dummy songs to be confident that we fixed the "realloc bug"
-        database.insert_song("Dummy 1", "War", "U2", "4:40");
-        database.insert_song("Dummy 2", "War", "U2", "4:40");
-        database.insert_song("Dummy 3", "War", "U2", "4:40");
-        database.insert_song("Dummy 4", "War", "U2", "4:40");
+        database.insert_song("Dummy 1", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_song("Dummy 2", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_song("Dummy 3", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_song("Dummy 4", "War", "U2", strong::Duration{4min + 40s});
 
         // ACT
         const auto things = database.find_things("Sunday Bloody Sunday");

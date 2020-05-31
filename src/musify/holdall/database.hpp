@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "strong_types.hpp"
 #include <string_view>
 #include <unordered_map>
 #include <filesystem>
@@ -81,7 +82,7 @@ namespace musify { namespace database {
             return !(left == right);
         }
 
-        Artist(std::string name, std::string start_year, std::string rating, std::string genre)
+        Artist(std::string name, strong::Year start_year, strong::Rating rating, strong::Genre genre)
             : MusicalBase{name}, m_start_year{start_year}, m_rating{rating}, m_genre{genre}
         {
         }
@@ -100,9 +101,9 @@ namespace musify { namespace database {
         virtual void to_stream(std::ostream& output_stream) const override;
 
     private:
-        std::string m_start_year{};
-        std::string m_rating{};
-        std::string m_genre{};
+        strong::Year m_start_year{};
+        strong::Rating m_rating{};
+        strong::Genre m_genre{};
         std::vector<const Album*> m_albums{};
     };
 
@@ -121,7 +122,7 @@ namespace musify { namespace database {
             return !(left == right);
         }
 
-        Album(std::string name, const Artist* artist, std::string date)
+        Album(std::string name, const Artist* artist, strong::Date date)
             : MusicalBase{name}, m_artist{artist}, m_date{date}
         {
         }
@@ -136,7 +137,7 @@ namespace musify { namespace database {
 
     private:
         const Artist* m_artist{};
-        std::string m_date{};
+        strong::Date m_date{};
     };
 
     class Song final : public MusicalBase
@@ -154,7 +155,7 @@ namespace musify { namespace database {
             return !(left == right);
         }
 
-        Song(std::string name, const Album* album, const Artist* artist, std::string duration)
+        Song(std::string name, const Album* album, const Artist* artist, strong::Duration duration)
             : MusicalBase{name}, m_album{album}, m_artist{artist}, m_duration{duration}
         {
         }
@@ -170,7 +171,7 @@ namespace musify { namespace database {
     private:
         const Album* m_album{};
         const Artist* m_artist{};
-        std::string m_duration{};
+        strong::Duration m_duration{};
     };
 
     enum class LoadingResult
@@ -180,7 +181,8 @@ namespace musify { namespace database {
         FileNotReadable = 2,
         UnknownLineType = 3,
         IncompleteLine = 4,
-        DuplicateArtist = 5,
+        ParsingError = 5,
+        DuplicateArtist = 6,
         UnknownArtist,
         DuplicateAlbum,
         UnknownAlbum,
@@ -190,7 +192,7 @@ namespace musify { namespace database {
     enum class InsertionResult
     {
         Ok = 0,
-        DuplicateArtist = 5,
+        DuplicateArtist = 6,
         UnknownArtist,
         DuplicateAlbum,
         UnknownAlbum,
@@ -237,12 +239,13 @@ namespace musify { namespace database {
             return m_songs;
         }
 
-        InsertionResult insert_artist(std::string name, std::string start_year, std::string rating, std::string genre);
+        InsertionResult insert_artist(std::string name, strong::Year start_year, strong::Rating rating,
+                                      strong::Genre genre);
 
-        InsertionResult insert_album(std::string name, std::string artist_name, std::string date);
+        InsertionResult insert_album(std::string name, std::string artist_name, strong::Date);
 
         InsertionResult insert_song(std::string name, std::string album_name, std::string artist_name,
-                                    std::string duration);
+                                    strong::Duration duration);
 
     private:
         Artists m_artists{};

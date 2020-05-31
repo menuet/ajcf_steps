@@ -76,7 +76,16 @@ namespace musify { namespace database {
         const auto [rating, genre] = parse_until(rating_genre, ',');
         if (rating.empty() || genre.empty())
             return LoadingResult::IncompleteLine;
-        return static_cast<LoadingResult>(database.insert_artist(name, year, rating, genre));
+        const auto year_opt = strong::parse_year(year);
+        if (!year_opt)
+            return LoadingResult::ParsingError;
+        const auto rating_opt = strong::parse_rating(rating);
+        if (!rating_opt)
+            return LoadingResult::ParsingError;
+        const auto genre_opt = strong::parse_genre(genre);
+        if (!genre_opt)
+            return LoadingResult::ParsingError;
+        return static_cast<LoadingResult>(database.insert_artist(name, *year_opt, *rating_opt, *genre_opt));
     }
 
     LoadingResult parse_and_load_album(std::string name_artistname_date, Database& database)
@@ -87,7 +96,10 @@ namespace musify { namespace database {
         const auto [artistname, date] = parse_until(artistname_date, ',');
         if (artistname.empty() || date.empty())
             return LoadingResult::IncompleteLine;
-        return static_cast<LoadingResult>(database.insert_album(name, artistname, date));
+        const auto date_opt = strong::parse_date(date);
+        if (!date_opt)
+            return LoadingResult::ParsingError;
+        return static_cast<LoadingResult>(database.insert_album(name, artistname, *date_opt));
     }
 
     LoadingResult parse_and_load_song(std::string name_albumname_artistname_duration, Database& database)
@@ -101,7 +113,10 @@ namespace musify { namespace database {
         const auto [artistname, duration] = parse_until(artistname_duration, ',');
         if (artistname.empty() || duration.empty())
             return LoadingResult::IncompleteLine;
-        return static_cast<LoadingResult>(database.insert_song(name, albumname, artistname, duration));
+        const auto duration_opt = strong::parse_duration(duration);
+        if (!duration_opt)
+            return LoadingResult::ParsingError;
+        return static_cast<LoadingResult>(database.insert_song(name, albumname, artistname, *duration_opt));
     }
 
 }} // namespace musify::database
