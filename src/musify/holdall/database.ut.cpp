@@ -109,8 +109,7 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
         REQUIRE(database.artists().size() == 1);
-        REQUIRE(database.artists().begin()->second ==
-                Artist{"Artist1", "2001", "4.5", "Rock", {&database.albums().begin()->second}});
+        REQUIRE(database.artists().begin()->second == Artist{"Artist1", "2001", "4.5", "Rock"});
         REQUIRE(database.albums().size() == 1);
         REQUIRE(database.albums().begin()->second ==
                 Album{"Album1", &database.artists().begin()->second, "2020/03/09"});
@@ -123,7 +122,7 @@ namespace musify { namespace database {
         // ARRANGE
         std::stringstream output_stream;
         std::vector<Artist> music_artists{
-            {"a1", "2000", "1.5", "Pop", {}}, {"a2", "2001", "3.", "Rock", {}}, {"a3", "2002", "5.0", "Jazz", {}}};
+            {"a1", "2000", "1.5", "Pop"}, {"a2", "2001", "3.", "Rock"}, {"a3", "2002", "5.0", "Jazz"}};
 
         // ACT
         display_music_entities(output_stream, music_artists);

@@ -12,9 +12,9 @@ namespace musify { namespace database {
 
     enum class LoadingResult;
     class Database;
-    struct Artist;
-    struct Album;
-    struct Song;
+    class Artist;
+    class Album;
+    class Song;
 
     std::vector<std::string> ask_new_database_lines(std::ostream& output_stream, std::istream& input_stream);
 

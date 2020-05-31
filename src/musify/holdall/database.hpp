@@ -23,36 +23,117 @@ namespace musify { namespace database {
     void save_new_database_lines(const std::filesystem::path& database_file_path,
                                  const std::vector<std::string>& database_lines);
 
-    struct Album;
+    class Database;
+    class Album;
 
-    struct Artist
+    class Artist
     {
+        friend class Database;
+
+    public:
+        using Albums = std::vector<const Album*>;
+
         static constexpr std::string_view type_label{"Artist"};
 
-        std::string name;
-        std::string start_year;
-        std::string rating;
-        std::string genre;
-        std::vector<const Album*> albums;
+        friend std::ostream& operator<<(std::ostream& output_stream, const Artist& artist);
+
+        friend bool operator==(const Artist& left, const Artist& right)
+        {
+            return left.m_name == right.m_name && left.m_genre == right.m_genre;
+        }
+
+        friend bool operator!=(const Artist& left, const Artist& right)
+        {
+            return !(left == right);
+        }
+
+        Artist(std::string name, std::string start_year, std::string rating, std::string genre)
+            : m_name{name}, m_start_year{start_year}, m_rating{rating}, m_genre{genre}
+        {
+        }
+
+        const std::string& name() const
+        {
+            return m_name;
+        }
+
+        const Albums& albums() const
+        {
+            return m_albums;
+        }
+
+    private:
+        std::string m_name{};
+        std::string m_start_year{};
+        std::string m_rating{};
+        std::string m_genre{};
+        std::vector<const Album*> m_albums{};
     };
 
-    struct Album
+    class Album
     {
+    public:
         static constexpr std::string_view type_label{"Album"};
 
-        std::string name;
-        const Artist* artist;
-        std::string date;
+        friend std::ostream& operator<<(std::ostream& output_stream, const Album& album);
+
+        friend bool operator==(const Album& left, const Album& right)
+        {
+            return left.m_name == right.m_name && left.m_artist == right.m_artist;
+        }
+
+        friend bool operator!=(const Album& left, const Album& right)
+        {
+            return !(left == right);
+        }
+
+        Album(std::string name, const Artist* artist, std::string date) : m_name{name}, m_artist{artist}, m_date{date}
+        {
+        }
+
+        const std::string& name() const
+        {
+            return m_name;
+        }
+
+    private:
+        std::string m_name{};
+        const Artist* m_artist{};
+        std::string m_date{};
     };
 
-    struct Song
+    class Song
     {
+    public:
         static constexpr std::string_view type_label{"Song"};
 
-        std::string name;
-        const Album* album;
-        const Artist* artist;
-        std::string duration;
+        friend std::ostream& operator<<(std::ostream& output_stream, const Song& song);
+
+        friend bool operator==(const Song& left, const Song& right)
+        {
+            return left.m_name == right.m_name && left.m_album == right.m_album && left.m_artist == right.m_artist;
+        }
+
+        friend bool operator!=(const Song& left, const Song& right)
+        {
+            return !(left == right);
+        }
+
+        Song(std::string name, const Album* album, const Artist* artist, std::string duration)
+            : m_name{name}, m_album{album}, m_artist{artist}, m_duration{duration}
+        {
+        }
+
+        const std::string& name() const
+        {
+            return m_name;
+        }
+
+    private:
+        std::string m_name{};
+        const Album* m_album{};
+        const Artist* m_artist{};
+        std::string m_duration{};
     };
 
     enum class LoadingResult
@@ -123,11 +204,5 @@ namespace musify { namespace database {
     };
 
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);
-
-    std::ostream& operator<<(std::ostream& output_stream, const Artist& artist);
-
-    std::ostream& operator<<(std::ostream& output_stream, const Album& album);
-
-    std::ostream& operator<<(std::ostream& output_stream, const Song& song);
 
 }} // namespace musify::database

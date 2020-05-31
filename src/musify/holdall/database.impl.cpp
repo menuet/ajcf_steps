@@ -104,21 +104,4 @@ namespace musify { namespace database {
         return static_cast<LoadingResult>(database.insert_song(name, albumname, artistname, duration));
     }
 
-    bool operator==(const Artist& artist1, const Artist& artist2)
-    {
-        return artist1.name == artist2.name && artist1.start_year == artist2.start_year &&
-               artist1.rating == artist2.rating && artist1.genre == artist2.genre;
-    }
-
-    bool operator==(const Album& album1, const Album& album2)
-    {
-        return album1.name == album2.name && album1.artist == album2.artist && album1.date == album2.date;
-    }
-
-    bool operator==(const Song& song1, const Song& song2)
-    {
-        return song1.name == song2.name && song1.album == song2.album && song1.artist == song2.artist &&
-               song1.duration == song2.duration;
-    }
-
 }} // namespace musify::database
