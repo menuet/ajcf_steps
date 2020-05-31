@@ -4,6 +4,7 @@
 #include <string_view>
 #include <unordered_map>
 #include <filesystem>
+#include <functional>
 #include <map>
 #include <string>
 #include <vector>
@@ -26,7 +27,31 @@ namespace musify { namespace database {
     class Database;
     class Album;
 
-    class Artist
+    class MusicalThing
+    {
+    public:
+        friend std::ostream& operator<<(std::ostream& output_stream, const MusicalThing& thing);
+
+        MusicalThing(std::string name, std::string_view type_label) : m_name{name}, m_type_label{type_label}
+        {
+        }
+
+        const std::string& name() const
+        {
+            return m_name;
+        }
+
+        const std::string_view& type_label() const
+        {
+            return m_type_label;
+        }
+
+    private:
+        std::string m_name{};
+        std::string_view m_type_label{};
+    };
+
+    class Artist : public MusicalThing
     {
         friend class Database;
 
@@ -39,7 +64,7 @@ namespace musify { namespace database {
 
         friend bool operator==(const Artist& left, const Artist& right)
         {
-            return left.m_name == right.m_name && left.m_genre == right.m_genre;
+            return left.name() == right.name() && left.m_genre == right.m_genre;
         }
 
         friend bool operator!=(const Artist& left, const Artist& right)
@@ -48,13 +73,8 @@ namespace musify { namespace database {
         }
 
         Artist(std::string name, std::string start_year, std::string rating, std::string genre)
-            : m_name{name}, m_start_year{start_year}, m_rating{rating}, m_genre{genre}
+            : MusicalThing{name, type_label}, m_start_year{start_year}, m_rating{rating}, m_genre{genre}
         {
-        }
-
-        const std::string& name() const
-        {
-            return m_name;
         }
 
         const Albums& albums() const
@@ -63,14 +83,13 @@ namespace musify { namespace database {
         }
 
     private:
-        std::string m_name{};
         std::string m_start_year{};
         std::string m_rating{};
         std::string m_genre{};
         std::vector<const Album*> m_albums{};
     };
 
-    class Album
+    class Album : public MusicalThing
     {
     public:
         static constexpr std::string_view type_label{"Album"};
@@ -79,7 +98,7 @@ namespace musify { namespace database {
 
         friend bool operator==(const Album& left, const Album& right)
         {
-            return left.m_name == right.m_name && left.m_artist == right.m_artist;
+            return left.name() == right.name() && left.m_artist == right.m_artist;
         }
 
         friend bool operator!=(const Album& left, const Album& right)
@@ -87,22 +106,17 @@ namespace musify { namespace database {
             return !(left == right);
         }
 
-        Album(std::string name, const Artist* artist, std::string date) : m_name{name}, m_artist{artist}, m_date{date}
+        Album(std::string name, const Artist* artist, std::string date)
+            : MusicalThing{name, type_label}, m_artist{artist}, m_date{date}
         {
-        }
-
-        const std::string& name() const
-        {
-            return m_name;
         }
 
     private:
-        std::string m_name{};
         const Artist* m_artist{};
         std::string m_date{};
     };
 
-    class Song
+    class Song : public MusicalThing
     {
     public:
         static constexpr std::string_view type_label{"Song"};
@@ -111,7 +125,7 @@ namespace musify { namespace database {
 
         friend bool operator==(const Song& left, const Song& right)
         {
-            return left.m_name == right.m_name && left.m_album == right.m_album && left.m_artist == right.m_artist;
+            return left.name() == right.name() && left.m_album == right.m_album && left.m_artist == right.m_artist;
         }
 
         friend bool operator!=(const Song& left, const Song& right)
@@ -120,17 +134,11 @@ namespace musify { namespace database {
         }
 
         Song(std::string name, const Album* album, const Artist* artist, std::string duration)
-            : m_name{name}, m_album{album}, m_artist{artist}, m_duration{duration}
+            : MusicalThing{name, type_label}, m_album{album}, m_artist{artist}, m_duration{duration}
         {
-        }
-
-        const std::string& name() const
-        {
-            return m_name;
         }
 
     private:
-        std::string m_name{};
         const Album* m_album{};
         const Artist* m_artist{};
         std::string m_duration{};
@@ -166,6 +174,8 @@ namespace musify { namespace database {
         using Artists = BintreeOrHashtable<std::string, Artist>;
         using Albums = BintreeOrHashtable<std::string, Album>;
         using Songs = std::vector<Song>;
+        using ConstMusicalThingRef = std::reference_wrapper<MusicalThing const>;
+        using MusicalThings = std::vector<ConstMusicalThingRef>;
 
         void display() const;
 
@@ -174,6 +184,8 @@ namespace musify { namespace database {
         const Album* find_album(const std::string& album_name) const;
 
         const Song* find_song(const std::string& song_name) const;
+
+        MusicalThings find_things(const std::string& name) const;
 
         const Artists& artists() const
         {
@@ -198,9 +210,10 @@ namespace musify { namespace database {
                                     std::string duration);
 
     private:
-        BintreeOrHashtable<std::string, Artist> m_artists{};
-        BintreeOrHashtable<std::string, Album> m_albums{};
-        std::vector<Song> m_songs{};
+        Artists m_artists{};
+        Albums m_albums{};
+        Songs m_songs{};
+        std::multimap<std::string, const MusicalThing*> m_things{};
     };
 
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);

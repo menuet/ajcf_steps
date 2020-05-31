@@ -176,4 +176,20 @@ namespace musify { namespace database {
         // TODO
     }
 
+    TEST_CASE("TEST musify::database::Database::find_things", "[database]")
+    {
+        // ARRANGE
+        Database database{};
+        database.insert_artist("U2", "1976", "4.5", "Rock");
+        database.insert_album("War", "U2", "1983/03/21");
+        database.insert_song("Sunday Bloody Sunday", "War", "U2", "4:40");
+
+        // ACT
+        const auto things = database.find_things("Sunday Bloody Sunday");
+
+        // ASSERT
+        REQUIRE(things.size() == 1);
+        REQUIRE(things[0].get().type_label() == "Song");
+    }
+
 }} // namespace musify::database

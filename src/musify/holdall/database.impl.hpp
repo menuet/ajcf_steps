@@ -22,31 +22,48 @@ namespace musify { namespace database {
 
     LoadingResult parse_and_load_database_line(const std::string& line, Database& database);
 
-    template <typename T>
-    inline void display_music_entities(std::ostream& output_stream, const std::vector<T>& music_entities)
+    template <typename NameT, typename EntityT>
+    const auto& get_entity_only(const std::pair<const NameT, EntityT>& name_and_entity)
     {
-        output_stream << "-----------------\n";
-        unsigned int entity_index = 0;
-        for (const auto& entity : music_entities)
-        {
-            output_stream << T::type_label << " #" << ++entity_index << ": " << entity << "\n";
-            output_stream << "-----------------\n";
-        }
-        output_stream << "--> " << music_entities.size() << " " << T::type_label << "s\n";
-        output_stream << "-----------------\n";
+        return name_and_entity.second;
     }
 
-    template <typename K, typename T>
-    inline void display_music_entities(std::ostream& output_stream, const BintreeOrHashtable<K, T>& music_entities)
+    template <typename EntityT>
+    const auto& get_entity_only(const EntityT& entity)
+    {
+        return entity;
+    }
+
+    template <typename ContainerT>
+    struct EntityOnly;
+
+    template <typename ContainerT>
+    using EntityOnly_t = typename EntityOnly<ContainerT>::type;
+
+    template <typename KeyT, typename EntityT>
+    struct EntityOnly<BintreeOrHashtable<KeyT, EntityT>>
+    {
+        using type = EntityT;
+    };
+
+    template <typename EntityT>
+    struct EntityOnly<std::vector<EntityT>>
+    {
+        using type = EntityT;
+    };
+
+    template <typename ContainerT>
+    inline void display_music_entities(std::ostream& output_stream, const ContainerT& music_entities)
     {
         output_stream << "-----------------\n";
         unsigned int entity_index = 0;
-        for (const auto& entity : music_entities)
+        for (const auto& name_and_entity : music_entities)
         {
-            output_stream << T::type_label << " #" << ++entity_index << ": " << entity.second << "\n";
+            output_stream << EntityOnly_t<ContainerT>::type_label << " #" << ++entity_index << ": "
+                          << get_entity_only(name_and_entity) << "\n";
             output_stream << "-----------------\n";
         }
-        output_stream << "--> " << music_entities.size() << " " << T::type_label << "s\n";
+        output_stream << "--> " << music_entities.size() << " " << EntityOnly_t<ContainerT>::type_label << "s\n";
         output_stream << "-----------------\n";
     }
 

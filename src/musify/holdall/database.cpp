@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cassert>
 #include <fstream>
+#include <iterator>
 
 namespace musify { namespace database {
 
@@ -76,14 +77,27 @@ namespace musify { namespace database {
         return nullptr;
     }
 
+    Database::MusicalThings Database::find_things(const std::string& name) const
+    {
+        const auto [iter_begin, iter_end] = m_things.equal_range(name);
+        MusicalThings things{};
+        std::transform(iter_begin, iter_end, std::back_inserter(things),
+                       [](const auto& name_and_thing) { return std::cref(*name_and_thing.second); });
+        return things;
+    }
+
     InsertionResult Database::insert_artist(std::string name, std::string start_year, std::string rating,
                                             std::string genre)
     {
         assert(!name.empty());
 
-        if (this->find_artist(name))
+        const auto [iter_artist, result] = m_artists.emplace(name, Artist{name, start_year, rating, genre});
+        if (!result)
             return InsertionResult::DuplicateArtist;
-        this->m_artists.emplace(name, Artist{name, start_year, rating, genre});
+        const Artist& artist = iter_artist->second;
+
+        m_things.emplace(name, &artist);
+
         return InsertionResult::Ok;
     }
 
@@ -91,15 +105,20 @@ namespace musify { namespace database {
     {
         assert(!name.empty());
 
-        if (find_album(name))
-            return InsertionResult::DuplicateAlbum;
-        const auto artist = find_artist(artist_name);
-        if (!artist)
+        const auto iter_artist = m_artists.find(artist_name);
+        if (iter_artist == m_artists.end())
             return InsertionResult::UnknownArtist;
-        const auto iter_and_result = this->m_albums.emplace(name, Album{name, artist, date});
-        const auto& album = iter_and_result.first->second;
-        Artist* mutable_artist = const_cast<Artist*>(artist);
-        mutable_artist->m_albums.push_back(&album);
+        Artist& artist = iter_artist->second;
+
+        const auto [iter_album, result] = m_albums.emplace(name, Album{name, &artist, date});
+        if (!result)
+            return InsertionResult::DuplicateAlbum;
+        const Album& album = iter_album->second;
+
+        artist.m_albums.push_back(&album);
+
+        m_things.emplace(name, &album);
+
         return InsertionResult::Ok;
     }
 
@@ -108,21 +127,37 @@ namespace musify { namespace database {
     {
         assert(!name.empty());
 
-        if (find_song(name))
-            return InsertionResult::DuplicateSong;
-        const auto album = find_album(album_name);
-        if (!album)
+        const auto iter_album = m_albums.find(album_name);
+        if (iter_album == m_albums.end())
             return InsertionResult::UnknownAlbum;
-        const auto artist = find_artist(artist_name);
-        if (!artist)
+        const Album& album = iter_album->second;
+
+        const auto iter_artist = m_artists.find(artist_name);
+        if (iter_artist == m_artists.end())
             return InsertionResult::UnknownArtist;
-        this->m_songs.emplace_back(name, album, artist, duration);
+        const Artist& artist = iter_artist->second;
+
+        const auto iter_song =
+            std::find_if(m_songs.begin(), m_songs.end(), [&](const auto& song) { return song.name() == name; });
+        if (iter_song != m_songs.end())
+            return InsertionResult::DuplicateSong;
+        m_songs.emplace_back(name, &album, &artist, duration);
+        const Song& song = m_songs.back();
+
+        m_things.emplace(name, &song);
+
         return InsertionResult::Ok;
+    }
+
+    std::ostream& operator<<(std::ostream& output_stream, const MusicalThing& thing)
+    {
+        output_stream << "{" << thing.m_name << ", " << thing.m_type_label << "}";
+        return output_stream;
     }
 
     std::ostream& operator<<(std::ostream& output_stream, const Artist& artist)
     {
-        output_stream << "{" << artist.m_name << ", " << artist.m_start_year << ", " << artist.m_rating << ", "
+        output_stream << "{" << artist.name() << ", " << artist.m_start_year << ", " << artist.m_rating << ", "
                       << artist.m_genre << ", " << artist.m_albums.size() << " albums"
                       << "}";
         return output_stream;
@@ -131,7 +166,7 @@ namespace musify { namespace database {
     std::ostream& operator<<(std::ostream& output_stream, const Album& album)
     {
         assert(album.m_artist);
-        output_stream << "{" << album.m_name << ", " << album.m_artist->name() << ", " << album.m_date << "}";
+        output_stream << "{" << album.name() << ", " << album.m_artist->name() << ", " << album.m_date << "}";
         return output_stream;
     }
 
@@ -139,7 +174,7 @@ namespace musify { namespace database {
     {
         assert(song.m_artist);
         assert(song.m_album);
-        output_stream << "{" << song.m_name << ", " << song.m_album->name() << ", " << song.m_artist->name() << ", "
+        output_stream << "{" << song.name() << ", " << song.m_album->name() << ", " << song.m_artist->name() << ", "
                       << song.m_duration << "}";
         return output_stream;
     }
