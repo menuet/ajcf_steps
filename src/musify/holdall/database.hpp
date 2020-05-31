@@ -30,29 +30,39 @@ namespace musify { namespace database {
 
     class MusicalThing
     {
-    public:
         friend std::ostream& operator<<(std::ostream& output_stream, const MusicalThing& thing);
 
-        MusicalThing(std::string name, std::string_view type_label) : m_name{name}, m_type_label{type_label}
+    public:
+        virtual ~MusicalThing() = default;
+
+        virtual const std::string& name() const = 0;
+
+        virtual std::string_view concrete_type_label() const = 0;
+
+    protected:
+        virtual void to_stream(std::ostream& output_stream) const = 0;
+    };
+
+    class MusicalBase : public MusicalThing
+    {
+    public:
+        MusicalBase(std::string name) : m_name{name}
         {
         }
 
-        const std::string& name() const
+        virtual const std::string& name() const final
         {
             return m_name;
         }
 
-        const std::string_view& type_label() const
-        {
-            return m_type_label;
-        }
+    protected:
+        virtual void to_stream(std::ostream& output_stream) const override;
 
     private:
         std::string m_name{};
-        std::string_view m_type_label{};
     };
 
-    class Artist : public MusicalThing
+    class Artist final : public MusicalBase
     {
         friend class Database;
 
@@ -60,8 +70,6 @@ namespace musify { namespace database {
         using Albums = std::vector<const Album*>;
 
         static constexpr std::string_view type_label{"Artist"};
-
-        friend std::ostream& operator<<(std::ostream& output_stream, const Artist& artist);
 
         friend bool operator==(const Artist& left, const Artist& right)
         {
@@ -74,7 +82,7 @@ namespace musify { namespace database {
         }
 
         Artist(std::string name, std::string start_year, std::string rating, std::string genre)
-            : MusicalThing{name, type_label}, m_start_year{start_year}, m_rating{rating}, m_genre{genre}
+            : MusicalBase{name}, m_start_year{start_year}, m_rating{rating}, m_genre{genre}
         {
         }
 
@@ -83,6 +91,14 @@ namespace musify { namespace database {
             return m_albums;
         }
 
+        virtual std::string_view concrete_type_label() const override
+        {
+            return type_label;
+        }
+
+    protected:
+        virtual void to_stream(std::ostream& output_stream) const override;
+
     private:
         std::string m_start_year{};
         std::string m_rating{};
@@ -90,12 +106,10 @@ namespace musify { namespace database {
         std::vector<const Album*> m_albums{};
     };
 
-    class Album : public MusicalThing
+    class Album final : public MusicalBase
     {
     public:
         static constexpr std::string_view type_label{"Album"};
-
-        friend std::ostream& operator<<(std::ostream& output_stream, const Album& album);
 
         friend bool operator==(const Album& left, const Album& right)
         {
@@ -108,21 +122,27 @@ namespace musify { namespace database {
         }
 
         Album(std::string name, const Artist* artist, std::string date)
-            : MusicalThing{name, type_label}, m_artist{artist}, m_date{date}
+            : MusicalBase{name}, m_artist{artist}, m_date{date}
         {
         }
+
+        virtual std::string_view concrete_type_label() const override
+        {
+            return type_label;
+        }
+
+    protected:
+        virtual void to_stream(std::ostream& output_stream) const override;
 
     private:
         const Artist* m_artist{};
         std::string m_date{};
     };
 
-    class Song : public MusicalThing
+    class Song final : public MusicalBase
     {
     public:
         static constexpr std::string_view type_label{"Song"};
-
-        friend std::ostream& operator<<(std::ostream& output_stream, const Song& song);
 
         friend bool operator==(const Song& left, const Song& right)
         {
@@ -135,9 +155,17 @@ namespace musify { namespace database {
         }
 
         Song(std::string name, const Album* album, const Artist* artist, std::string duration)
-            : MusicalThing{name, type_label}, m_album{album}, m_artist{artist}, m_duration{duration}
+            : MusicalBase{name}, m_album{album}, m_artist{artist}, m_duration{duration}
         {
         }
+
+        virtual std::string_view concrete_type_label() const override
+        {
+            return type_label;
+        }
+
+    protected:
+        virtual void to_stream(std::ostream& output_stream) const override;
 
     private:
         const Album* m_album{};
@@ -177,6 +205,12 @@ namespace musify { namespace database {
         using Songs = std::list<Song>;
         using ConstMusicalThingRef = std::reference_wrapper<MusicalThing const>;
         using MusicalThings = std::vector<ConstMusicalThingRef>;
+
+        Database() = default;
+
+        Database(const Database&) = delete;
+
+        Database& operator=(const Database&) = delete;
 
         void display() const;
 

@@ -151,32 +151,36 @@ namespace musify { namespace database {
 
     std::ostream& operator<<(std::ostream& output_stream, const MusicalThing& thing)
     {
-        output_stream << "{" << thing.m_name << ", " << thing.m_type_label << "}";
+        thing.to_stream(output_stream);
         return output_stream;
     }
 
-    std::ostream& operator<<(std::ostream& output_stream, const Artist& artist)
+    void MusicalBase::to_stream(std::ostream& output_stream) const
     {
-        output_stream << "{" << artist.name() << ", " << artist.m_start_year << ", " << artist.m_rating << ", "
-                      << artist.m_genre << ", " << artist.m_albums.size() << " albums"
+        output_stream << "{" << name() << ", " << concrete_type_label() << "}";
+    }
+
+    void Artist::to_stream(std::ostream& output_stream) const
+    {
+        output_stream << "{";
+        MusicalBase::to_stream(output_stream);
+        output_stream << ", " << m_start_year << ", " << m_rating << ", " << m_genre << ", " << m_albums.size()
+                      << " albums"
                       << "}";
-        return output_stream;
     }
 
-    std::ostream& operator<<(std::ostream& output_stream, const Album& album)
+    void Album::to_stream(std::ostream& output_stream) const
     {
-        assert(album.m_artist);
-        output_stream << "{" << album.name() << ", " << album.m_artist->name() << ", " << album.m_date << "}";
-        return output_stream;
+        output_stream << "{";
+        MusicalBase::to_stream(output_stream);
+        output_stream << ", " << m_artist->name() << ", " << m_date << "}";
     }
 
-    std::ostream& operator<<(std::ostream& output_stream, const Song& song)
+    void Song::to_stream(std::ostream& output_stream) const
     {
-        assert(song.m_artist);
-        assert(song.m_album);
-        output_stream << "{" << song.name() << ", " << song.m_album->name() << ", " << song.m_artist->name() << ", "
-                      << song.m_duration << "}";
-        return output_stream;
+        output_stream << "{";
+        MusicalBase::to_stream(output_stream);
+        output_stream << ", " << m_album->name() << ", " << m_artist->name() << ", " << m_duration << "}";
     }
 
 }} // namespace musify::database

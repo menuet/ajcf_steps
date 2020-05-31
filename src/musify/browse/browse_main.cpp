@@ -82,22 +82,17 @@ int main(int argc, char* argv[])
         for (const auto& thing_refwrap : things)
         {
             const auto& thing = thing_refwrap.get();
-            std::cout << "Found: " << thing << " -> details: ";
-            if (thing.type_label() == "Artist")
+            std::cout << "Found: " << thing;
+            if (const auto artist = dynamic_cast<const mdb::Artist*>(&thing); artist)
             {
-                const auto& artist = static_cast<const mdb::Artist&>(thing);
-                std::cout << artist << "\n";
-            }
-            else if (thing.type_label() == "Album")
+                std::cout << " (albums: ";
+                for (const auto& artist_album : artist->albums())
             {
-                const auto& album = static_cast<const mdb::Album&>(thing);
-                std::cout << album << "\n";
+                    std::cout << artist_album->name() << ", ";
             }
-            else if (thing.type_label() == "Song")
-            {
-                const auto& song = static_cast<const mdb::Song&>(thing);
-                std::cout << song << "\n";
+                std::cout << ')';
             }
+            std::cout << '\n';
         }
     }
     else

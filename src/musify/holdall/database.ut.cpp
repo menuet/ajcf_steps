@@ -130,11 +130,11 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(output_stream.str() ==
                 "-----------------\n"
-                "Artist #1: {a1, 2000, 1.5, Pop, 0 albums}\n"
+                "Artist #1: {{a1, Artist}, 2000, 1.5, Pop, 0 albums}\n"
                 "-----------------\n"
-                "Artist #2: {a2, 2001, 3., Rock, 0 albums}\n"
+                "Artist #2: {{a2, Artist}, 2001, 3., Rock, 0 albums}\n"
                 "-----------------\n"
-                "Artist #3: {a3, 2002, 5.0, Jazz, 0 albums}\n"
+                "Artist #3: {{a3, Artist}, 2002, 5.0, Jazz, 0 albums}\n"
                 "-----------------\n"
                 "--> 3 Artists\n"
                 "-----------------\n");
@@ -194,7 +194,8 @@ namespace musify { namespace database {
 
         // ASSERT
         REQUIRE(things.size() == 1);
-        REQUIRE(things[0].get().type_label() == "Song");
+        REQUIRE(things[0].get().name() == "Sunday Bloody Sunday");
+        REQUIRE(typeid(things[0].get()) == typeid(Song));
     }
 
 }} // namespace musify::database
