@@ -6,6 +6,7 @@
 #include <filesystem>
 #include <map>
 #include <string>
+#include <variant>
 #include <vector>
 
 #if defined(TRY_RISKY_FIX)
@@ -57,14 +58,13 @@ namespace musify { namespace database {
 
     struct Database
     {
-        BintreeOrHashtable<std::string, Artist> artists;
-        BintreeOrHashtable<std::string, Album> albums;
-        std::vector<Song> songs;
+        const BintreeOrHashtable<std::string, Artist> artists;
+        const BintreeOrHashtable<std::string, Album> albums;
+        const std::vector<Song> songs;
     };
 
-    enum class LoadingResult
+    enum class LoadingError
     {
-        Ok = 0,
         FileNotFound,
         FileNotReadable,
         UnknownLineType,
@@ -76,7 +76,7 @@ namespace musify { namespace database {
         DuplicateSong,
     };
 
-    LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);
+    std::variant<Database, LoadingError> load_database(const std::filesystem::path& database_file_path);
 
     void display_database(const Database& database);
 

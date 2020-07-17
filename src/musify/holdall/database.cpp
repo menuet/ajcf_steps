@@ -23,21 +23,22 @@ namespace musify { namespace database {
             database_file << database_line << '\n';
     }
 
-    LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database)
+    std::variant<Database, LoadingError> load_database(const std::filesystem::path& database_file_path)
     {
         if (!std::filesystem::is_regular_file(database_file_path))
-            return LoadingResult::FileNotFound;
+            return LoadingError::FileNotFound;
         std::ifstream ifs{database_file_path.string()};
         if (ifs.fail())
-            return LoadingResult::FileNotReadable;
+            return LoadingError::FileNotReadable;
         std::string database_line;
+        MutableDatabase database{};
         while (std::getline(ifs, database_line))
         {
-            const LoadingResult loading_result = parse_and_load_database_line(database_line, database);
-            if (loading_result != LoadingResult::Ok)
-                return loading_result;
+            const auto error_opt = parse_and_load_database_line(database_line, database);
+            if (error_opt.has_value())
+                return error_opt.value();
         }
-        return LoadingResult::Ok;
+        return Database{std::move(database.artists), std::move(database.albums), std::move(database.songs)};
     }
 
     void display_database(const Database& database)
@@ -45,11 +46,6 @@ namespace musify { namespace database {
         display_music_entities(std::cout, database.artists);
         display_music_entities(std::cout, database.albums);
         display_music_entities(std::cout, database.songs);
-    }
-
-    bool contains_artist(const Database& database, const std::string& artist_name)
-    {
-        return find_artist(database, artist_name) != nullptr;
     }
 
     const Artist* find_artist(const Database& database, const std::string& artist_name)

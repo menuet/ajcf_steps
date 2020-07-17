@@ -19,42 +19,46 @@ int main(int argc, char* argv[])
 
     std::cout << "Loading database file " << database_file_path << "...\n";
 
-    mdb::Database database;
-    const auto result = mdb::load_database(database_file_path, database);
-    switch (result)
+    auto database_or_error = mdb::load_database(database_file_path);
+    const mdb::LoadingError* pError = std::get_if<mdb::LoadingError>(&database_or_error);
+    if (pError)
     {
-    case mdb::LoadingResult::FileNotFound:
-        std::cerr << "The database file does not exist\n";
-        break;
-    case mdb::LoadingResult::FileNotReadable:
-        std::cerr << "The database file is not readable\n";
-        break;
-    case mdb::LoadingResult::UnknownLineType:
-        std::cerr << "The database file contains a line of unknow type\n";
-        break;
-    case mdb::LoadingResult::IncompleteLine:
-        std::cerr << "The database file contains an incomplete line\n";
-        break;
-    case mdb::LoadingResult::DuplicateArtist:
-        std::cerr << "The database file contains a duplicate artist\n";
-        break;
-    case mdb::LoadingResult::UnknownArtist:
-        std::cerr << "The database file refers to an unknown artist\n";
-        break;
-    case mdb::LoadingResult::DuplicateAlbum:
-        std::cerr << "The database file contains a duplicate album\n";
-        break;
-    case mdb::LoadingResult::UnknownAlbum:
-        std::cerr << "The database file refers to an unknown album\n";
-        break;
-    case mdb::LoadingResult::DuplicateSong:
-        std::cerr << "The database file contains a duplicate song\n";
-        break;
-    case mdb::LoadingResult::Ok:
-        std::cout << "Database file's contents:\n";
-        mdb::display_database(database);
-        break;
+        switch (*pError)
+        {
+        case mdb::LoadingError::FileNotFound:
+            std::cerr << "The database file does not exist\n";
+            break;
+        case mdb::LoadingError::FileNotReadable:
+            std::cerr << "The database file is not readable\n";
+            break;
+        case mdb::LoadingError::UnknownLineType:
+            std::cerr << "The database file contains a line of unknow type\n";
+            break;
+        case mdb::LoadingError::IncompleteLine:
+            std::cerr << "The database file contains an incomplete line\n";
+            break;
+        case mdb::LoadingError::DuplicateArtist:
+            std::cerr << "The database file contains a duplicate artist\n";
+            break;
+        case mdb::LoadingError::UnknownArtist:
+            std::cerr << "The database file refers to an unknown artist\n";
+            break;
+        case mdb::LoadingError::DuplicateAlbum:
+            std::cerr << "The database file contains a duplicate album\n";
+            break;
+        case mdb::LoadingError::UnknownAlbum:
+            std::cerr << "The database file refers to an unknown album\n";
+            break;
+        case mdb::LoadingError::DuplicateSong:
+            std::cerr << "The database file contains a duplicate song\n";
+            break;
+        }
+        return static_cast<int>(*pError);
     }
+
+    mdb::Database& database = std::get<mdb::Database>(database_or_error);
+    std::cout << "Database file's contents:\n";
+    mdb::display_database(database);
 
     std::cout << '\n';
     std::cout << "Searching for artist 'Oasis'... ";
@@ -75,5 +79,5 @@ int main(int argc, char* argv[])
     else
         std::cout << "Unknown song\n";
 
-    return static_cast<int>(result);
+    return static_cast<int>(0);
 }

@@ -118,6 +118,10 @@
         "xtree": "cpp",
         "xutility": "cpp",
         "resumable": "cpp",
-        "filesystem": "cpp"
+        "filesystem": "cpp",
+        "bit": "cpp",
+        "*.tcc": "cpp",
+        "memory_resource": "cpp",
+        "string_view": "cpp"
     }
 }
