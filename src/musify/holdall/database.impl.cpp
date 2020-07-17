@@ -70,16 +70,13 @@ namespace musify { namespace database {
         const auto [name, year_rating_genre] = parse_until(name_year_rating_genre, ',');
         if (name.empty())
             return LoadingResult::IncompleteLine;
-        if (find_artist(database, name))
-            return LoadingResult::DuplicateArtist;
         const auto [year, rating_genre] = parse_until(year_rating_genre, ',');
         if (year.empty())
             return LoadingResult::IncompleteLine;
         const auto [rating, genre] = parse_until(rating_genre, ',');
         if (rating.empty() || genre.empty())
             return LoadingResult::IncompleteLine;
-        database.artists.insert({name, {name, year, rating, genre, {}}});
-        return LoadingResult::Ok;
+        return static_cast<LoadingResult>(database.insert_artist(name, year, rating, genre));
     }
 
     LoadingResult parse_and_load_album(std::string name_artistname_date, Database& database)
@@ -87,19 +84,10 @@ namespace musify { namespace database {
         const auto [name, artistname_date] = parse_until(name_artistname_date, ',');
         if (name.empty())
             return LoadingResult::IncompleteLine;
-        if (find_album(database, name))
-            return LoadingResult::DuplicateAlbum;
         const auto [artistname, date] = parse_until(artistname_date, ',');
         if (artistname.empty() || date.empty())
             return LoadingResult::IncompleteLine;
-        const auto artist = find_artist(database, artistname);
-        if (!artist)
-            return LoadingResult::UnknownArtist;
-        const auto iter_and_result = database.albums.insert({name, {name, artist, date}});
-        const auto& album = iter_and_result.first->second;
-        Artist* mutable_artist = const_cast<Artist*>(artist);
-        mutable_artist->albums.push_back(&album);
-        return LoadingResult::Ok;
+        return static_cast<LoadingResult>(database.insert_album(name, artistname, date));
     }
 
     LoadingResult parse_and_load_song(std::string name_albumname_artistname_duration, Database& database)
@@ -107,44 +95,13 @@ namespace musify { namespace database {
         const auto [name, albumname_artistname_duration] = parse_until(name_albumname_artistname_duration, ',');
         if (name.empty())
             return LoadingResult::IncompleteLine;
-        if (find_song(database, name))
-            return LoadingResult::DuplicateSong;
         const auto [albumname, artistname_duration] = parse_until(albumname_artistname_duration, ',');
         if (albumname.empty())
             return LoadingResult::IncompleteLine;
-        const auto album = find_album(database, albumname);
-        if (!album)
-            return LoadingResult::UnknownAlbum;
         const auto [artistname, duration] = parse_until(artistname_duration, ',');
         if (artistname.empty() || duration.empty())
             return LoadingResult::IncompleteLine;
-        const auto artist = find_artist(database, artistname);
-        if (!artist)
-            return LoadingResult::UnknownArtist;
-        Song song{};
-        song.name = name;
-        song.album = album;
-        song.artist = artist;
-        song.duration = duration;
-        database.songs.push_back(song);
-        return LoadingResult::Ok;
-    }
-
-    bool operator==(const Artist& artist1, const Artist& artist2)
-    {
-        return artist1.name == artist2.name && artist1.start_year == artist2.start_year &&
-               artist1.rating == artist2.rating && artist1.genre == artist2.genre;
-    }
-
-    bool operator==(const Album& album1, const Album& album2)
-    {
-        return album1.name == album2.name && album1.artist == album2.artist && album1.date == album2.date;
-    }
-
-    bool operator==(const Song& song1, const Song& song2)
-    {
-        return song1.name == song2.name && song1.album == song2.album && song1.artist == song2.artist &&
-               song1.duration == song2.duration;
+        return static_cast<LoadingResult>(database.insert_song(name, albumname, artistname, duration));
     }
 
 }} // namespace musify::database
