@@ -5,24 +5,28 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "quickcheat (Windows)",
+            "name": "CMakeTools Debug Target (Windows)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/out/build/cmaketools/bin/quickcheat.exe",
-            "args": [],
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [
+                "database.txt"
+            ],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/out/build/cmaketools/bin",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "environment": [],
-            "externalConsole": false
+            "externalConsole": true
         },
         {
-            "name": "quickcheat (Linux)",
+            "name": "CMakeTools Debug Target (Linux)",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/out/build/cmaketools/bin/quickcheat",
-            "args": [],
+            "program": "${command:cmake.launchTargetPath}",
+            "args": [
+                "database.txt"
+            ],
             "stopAtEntry": false,
-            "cwd": "${workspaceFolder}/out/build/cmaketools/bin",
+            "cwd": "${command:cmake.launchTargetDirectory}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
