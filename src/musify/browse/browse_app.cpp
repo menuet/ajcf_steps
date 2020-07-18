@@ -18,58 +18,18 @@ std::optional<fs::path> check_arguments(int argc, char* argv[])
     return database_file_path;
 }
 
-static void display_menu()
-{
-    std::cout << "Please select an option\n";
-    std::cout << "Q -> Quit the application\n";
-    std::cout << "L -> Load the database\n";
-    std::cout << "D -> Display the database\n";
-    std::cout << "A -> Find the Artist 'Oasis'\n";
-    std::cout << "B -> Find the alBum 'Parachutes'\n";
-    std::cout << "S -> Find the Song 'Daylight'\n";
-    std::cout << "E -> Find anything which name Equals 'Supreme NTM'\n";
-}
-
-static char ask_user_choice()
-{
-    char user_choice{};
-    std::cin >> user_choice;
-    return user_choice;
-}
-
 void menu_loop(const fs::path& database_file_path)
 {
     mdb::Database database;
-    for (;;)
-    {
-        display_menu();
-        const auto user_choice = ask_user_choice();
-        switch (user_choice)
-        {
-        case 'Q':
-            option_quit();
-            return;
-        case 'L':
-            option_load_database(database_file_path, database);
-            break;
-        case 'D':
-            option_display_database(database);
-            break;
-        case 'A':
-            option_find_artist(database, "Oasis");
-            break;
-        case 'B':
-            option_find_album(database, "Parachutes");
-            break;
-        case 'S':
-            option_find_song(database, "Daylight");
-            break;
-        case 'E':
-            option_find_anything_which_name_equals(database, "Supreme NTM");
-            break;
-        default:
-            std::cout << "Please enter a valid choice\n";
-            break;
-        }
-    }
+    mm::Menu menu{
+        mm::MenuOption{'Q', "Quit the application", std::make_shared<OptionQuit>()},
+        mm::MenuOption{'L', "Load the database", std::make_shared<OptionLoadDatabase>(database_file_path, database)},
+        mm::MenuOption{'D', "Display the database", std::make_shared<OptionDisplayDatabase>(database)},
+        mm::MenuOption{'A', "Find the Artist 'Oasis'", std::make_shared<OptionFindArtist>(database, "Oasis")},
+        mm::MenuOption{'B', "Find the alBum 'Parachutes'", std::make_shared<OptionFindAlbum>(database, "Parachutes")},
+        mm::MenuOption{'S', "Find the Song 'Daylight'", std::make_shared<OptionFindSong>(database, "Daylight")},
+        mm::MenuOption{'E', "Find anything which name Equals 'Supreme NTM'",
+                       std::make_shared<OptionFindAnythingWhichNameEquals>(database, "Supreme NTM")}};
+
+    mm::menu_loop(menu);
 }
