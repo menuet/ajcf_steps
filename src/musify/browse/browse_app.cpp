@@ -1,7 +1,10 @@
 
 #include "browse_app.hpp"
 #include "menu_options.hpp"
+#include <holdall/singleton.hpp>
 #include <optional>
+
+namespace ms = musify::singleton;
 
 std::optional<fs::path> check_arguments(int argc, char* argv[])
 {
@@ -20,7 +23,8 @@ std::optional<fs::path> check_arguments(int argc, char* argv[])
 
 void menu_loop(const fs::path& database_file_path)
 {
-    mdb::Database database;
+    mdb::Database& database = ms::Singleton<mdb::Database>::get_instance();
+
     mm::Menu menu{
         mm::MenuOption{'Q', "Quit the application", option_quit},
         mm::MenuOption{'L', "Load the database", [&] { return option_load_database(database_file_path, database); }},

@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include "singleton.hpp"
 #include "strong_types.hpp"
 #include <string_view>
 #include <unordered_map>
@@ -202,14 +203,16 @@ namespace musify { namespace database {
 
     class Database
     {
+        friend class singleton::Singleton<Database>;
+
+        Database() = default;
+
     public:
         using Artists = BintreeOrHashtable<std::string, Artist>;
         using Albums = BintreeOrHashtable<std::string, Album>;
         using Songs = std::list<Song>;
         using ConstMusicalThingRef = std::reference_wrapper<MusicalThing const>;
         using MusicalThings = std::vector<ConstMusicalThingRef>;
-
-        Database() = default;
 
         Database(const Database&) = delete;
 
@@ -245,6 +248,14 @@ namespace musify { namespace database {
         {
             std::for_each(m_things.begin(), m_things.end(),
                           [&](const auto& name_and_thing) { visitor(*name_and_thing.second); });
+        }
+
+        void clear()
+        {
+            m_artists.clear();
+            m_albums.clear();
+            m_songs.clear();
+            m_things.clear();
         }
 
         InsertionResult insert_artist(std::string name, strong::Year start_year, strong::Rating rating,

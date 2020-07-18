@@ -66,9 +66,10 @@ namespace musify { namespace database {
         fs::remove(database_file_path, ec);
         std::vector<std::string> lines{"Line 1", "Line 2", "Line 3", "Line 4"};
         save_new_database_lines(database_file_path, lines);
+        Database& database = singleton::Singleton<Database>::get_instance();
+        database.clear();
 
         // ACT
-        Database database;
         const auto result = load_database(database_file_path, database);
 
         // ASSERT
@@ -86,9 +87,10 @@ namespace musify { namespace database {
         fs::remove(database_file_path, ec);
         std::vector<std::string> lines{"Artist=1", "Album=2", "Song=3", "Song="};
         save_new_database_lines(database_file_path, lines);
+        Database& database = singleton::Singleton<Database>::get_instance();
+        database.clear();
 
         // ACT
-        Database database;
         const auto result = load_database(database_file_path, database);
 
         // ASSERT
@@ -105,9 +107,10 @@ namespace musify { namespace database {
         std::vector<std::string> lines{"Artist=Artist1,2001,4.5,Rock", "Album=Album1,Artist1,2020/03/09",
                                        "Song=Song1,Album1,Artist1,3:45"};
         save_new_database_lines(database_file_path, lines);
+        Database& database = singleton::Singleton<Database>::get_instance();
+        database.clear();
 
         // ACT
-        Database database;
         const auto result = load_database(database_file_path, database);
 
         // ASSERT
@@ -165,7 +168,8 @@ namespace musify { namespace database {
     TEST_CASE("TEST musify::database::parse_and_load_album", "[database]")
     {
         // ARRANGE
-        Database database{};
+        Database& database = singleton::Singleton<Database>::get_instance();
+        database.clear();
         database.insert_artist("Oasis", strong::Year{1991_y}, strong::Rating{3.7f}, strong::Genre::Pop);
 
         // ACT
@@ -186,7 +190,8 @@ namespace musify { namespace database {
     TEST_CASE("TEST musify::database::Database::find_things", "[database]")
     {
         // ARRANGE
-        Database database{};
+        Database& database = singleton::Singleton<Database>::get_instance();
+        database.clear();
         database.insert_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock);
         database.insert_album("War", "U2", strong::Date{1983_y / 03 / 21});
         database.insert_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s});
@@ -208,7 +213,8 @@ namespace musify { namespace database {
     TEST_CASE("TEST musify::database::Database::visit_things", "[database]")
     {
         // ARRANGE
-        Database database{};
+        Database& database = singleton::Singleton<Database>::get_instance();
+        database.clear();
         database.insert_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock);
         database.insert_album("War", "U2", strong::Date{1983_y / 03 / 21});
         database.insert_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s});
