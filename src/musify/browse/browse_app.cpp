@@ -22,14 +22,14 @@ void menu_loop(const fs::path& database_file_path)
 {
     mdb::Database database;
     mm::Menu menu{
-        mm::MenuOption{'Q', "Quit the application", std::make_shared<OptionQuit>()},
-        mm::MenuOption{'L', "Load the database", std::make_shared<OptionLoadDatabase>(database_file_path, database)},
-        mm::MenuOption{'D', "Display the database", std::make_shared<OptionDisplayDatabase>(database)},
-        mm::MenuOption{'A', "Find the Artist 'Oasis'", std::make_shared<OptionFindArtist>(database, "Oasis")},
-        mm::MenuOption{'B', "Find the alBum 'Parachutes'", std::make_shared<OptionFindAlbum>(database, "Parachutes")},
-        mm::MenuOption{'S', "Find the Song 'Daylight'", std::make_shared<OptionFindSong>(database, "Daylight")},
+        mm::MenuOption{'Q', "Quit the application", option_quit},
+        mm::MenuOption{'L', "Load the database", [&] { return option_load_database(database_file_path, database); }},
+        mm::MenuOption{'D', "Display the database", [&] { return option_display_database(database); }},
+        mm::MenuOption{'A', "Find the Artist 'Oasis'", [&] { return option_find_artist(database, "Oasis"); }},
+        mm::MenuOption{'B', "Find the alBum 'Parachutes'", [&] { return option_find_album(database, "Parachutes"); }},
+        mm::MenuOption{'S', "Find the Song 'Daylight'", [&] { return option_find_song(database, "Daylight"); }},
         mm::MenuOption{'E', "Find anything which name Equals 'Supreme NTM'",
-                       std::make_shared<OptionFindAnythingWhichNameEquals>(database, "Supreme NTM")}};
+                       [&] { return option_find_anything_which_name_equals(database, "Supreme NTM"); }}};
 
     mm::menu_loop(menu);
 }
