@@ -113,8 +113,8 @@ namespace musify { namespace database {
         REQUIRE(database.albums().size() == 1);
         REQUIRE(database.albums().begin()->second ==
                 Album{"Album1", &database.artists().begin()->second, "2020/03/09"});
-        REQUIRE(database.songs() == std::vector<Song>{{"Song1", &database.albums().begin()->second,
-                                                       &database.artists().begin()->second, "3:45"}});
+        REQUIRE(database.songs() == std::list<Song>{{"Song1", &database.albums().begin()->second,
+                                                     &database.artists().begin()->second, "3:45"}});
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")
@@ -183,6 +183,11 @@ namespace musify { namespace database {
         database.insert_artist("U2", "1976", "4.5", "Rock");
         database.insert_album("War", "U2", "1983/03/21");
         database.insert_song("Sunday Bloody Sunday", "War", "U2", "4:40");
+        // Insert more dummy songs to be confident that we fixed the "realloc bug"
+        database.insert_song("Dummy 1", "War", "U2", "4:40");
+        database.insert_song("Dummy 2", "War", "U2", "4:40");
+        database.insert_song("Dummy 3", "War", "U2", "4:40");
+        database.insert_song("Dummy 4", "War", "U2", "4:40");
 
         // ACT
         const auto things = database.find_things("Sunday Bloody Sunday");

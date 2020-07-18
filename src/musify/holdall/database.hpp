@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <filesystem>
 #include <functional>
+#include <list>
 #include <map>
 #include <string>
 #include <vector>
@@ -173,7 +174,7 @@ namespace musify { namespace database {
     public:
         using Artists = BintreeOrHashtable<std::string, Artist>;
         using Albums = BintreeOrHashtable<std::string, Album>;
-        using Songs = std::vector<Song>;
+        using Songs = std::list<Song>;
         using ConstMusicalThingRef = std::reference_wrapper<MusicalThing const>;
         using MusicalThings = std::vector<ConstMusicalThingRef>;
 

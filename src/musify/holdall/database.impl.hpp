@@ -52,6 +52,12 @@ namespace musify { namespace database {
         using type = EntityT;
     };
 
+    template <typename EntityT>
+    struct EntityOnly<std::list<EntityT>>
+    {
+        using type = EntityT;
+    };
+
     template <typename ContainerT>
     inline void display_music_entities(std::ostream& output_stream, const ContainerT& music_entities)
     {
