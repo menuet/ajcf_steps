@@ -23,9 +23,9 @@ namespace musify { namespace database {
     LoadingResult parse_and_load_database_line(const std::string& line, Database& database);
 
     template <typename NameT, typename EntityT>
-    const auto& get_entity_only(const std::pair<const NameT, EntityT>& name_and_entity)
+    const auto& get_entity_only(const std::pair<const NameT, std::unique_ptr<EntityT>>& name_and_entity)
     {
-        return name_and_entity.second;
+        return *name_and_entity.second;
     }
 
     template <typename EntityT>
@@ -35,41 +35,16 @@ namespace musify { namespace database {
     }
 
     template <typename ContainerT>
-    struct EntityOnly;
-
-    template <typename ContainerT>
-    using EntityOnly_t = typename EntityOnly<ContainerT>::type;
-
-    template <typename KeyT, typename EntityT>
-    struct EntityOnly<BintreeOrHashtable<KeyT, EntityT>>
-    {
-        using type = EntityT;
-    };
-
-    template <typename EntityT>
-    struct EntityOnly<std::vector<EntityT>>
-    {
-        using type = EntityT;
-    };
-
-    template <typename EntityT>
-    struct EntityOnly<std::list<EntityT>>
-    {
-        using type = EntityT;
-    };
-
-    template <typename ContainerT>
     inline void display_music_entities(std::ostream& output_stream, const ContainerT& music_entities)
     {
         output_stream << "-----------------\n";
         unsigned int entity_index = 0;
         for (const auto& name_and_entity : music_entities)
         {
-            output_stream << EntityOnly_t<ContainerT>::type_label << " #" << ++entity_index << ": "
-                          << get_entity_only(name_and_entity) << "\n";
+            output_stream << "Thing #" << ++entity_index << ": " << get_entity_only(name_and_entity) << "\n";
             output_stream << "-----------------\n";
         }
-        output_stream << "--> " << music_entities.size() << " " << EntityOnly_t<ContainerT>::type_label << "s\n";
+        output_stream << "--> " << music_entities.size() << " things\n";
         output_stream << "-----------------\n";
     }
 

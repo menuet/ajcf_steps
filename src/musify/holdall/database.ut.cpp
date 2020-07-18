@@ -1,6 +1,8 @@
 
 #include "database.hpp"
 #include "database.impl.hpp"
+#include "musical_factory.hpp"
+#include "musical_things.hpp"
 #include <catch2/catch.hpp>
 #include <sstream>
 #include <typeindex>
@@ -115,12 +117,6 @@ namespace musify { namespace database {
 
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
-        REQUIRE(database.artists().size() == 1);
-        REQUIRE(database.artists().begin()->second ==
-                Artist{"Artist1", strong::Year{2001_y}, strong::Rating{4.5f}, strong::Genre::Rock});
-        REQUIRE(database.albums().size() == 1);
-        REQUIRE(database.albums().begin()->second == Album{"Album1", "Artist1", strong::Date{2020_y / mar / 9}});
-        REQUIRE(database.songs() == std::list<Song>{{"Song1", "Album1", "Artist1", strong::Duration{3min + 45s}}});
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")
@@ -137,13 +133,13 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(output_stream.str() ==
                 "-----------------\n"
-                "Artist #1: {{a1, Artist}, 2000, 1.5, Pop}\n"
+                "Thing #1: {{a1, Artist}, 2000, 1.5, Pop}\n"
                 "-----------------\n"
-                "Artist #2: {{a2, Artist}, 2001, 3.0, Rock}\n"
+                "Thing #2: {{a2, Artist}, 2001, 3.0, Rock}\n"
                 "-----------------\n"
-                "Artist #3: {{a3, Artist}, 2002, 5.0, Jazz}\n"
+                "Thing #3: {{a3, Artist}, 2002, 5.0, Jazz}\n"
                 "-----------------\n"
-                "--> 3 Artists\n"
+                "--> 3 things\n"
                 "-----------------\n");
     }
 
@@ -167,15 +163,14 @@ namespace musify { namespace database {
         // ARRANGE
         Database& database = singleton::Singleton<Database>::get_instance();
         database.clear();
-        database.insert_artist("Oasis", strong::Year{1991_y}, strong::Rating{3.7f}, strong::Genre::Pop);
+        database.insert_thing(
+            MusicalFactory{}.create_artist("Oasis", strong::Year{1991_y}, strong::Rating{3.7f}, strong::Genre::Pop));
 
         // ACT
         const auto result = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);
 
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
-        REQUIRE(database.albums().size() == 1);
-        REQUIRE(database.albums().begin()->second == Album{"Morning Glory", "Oasis", strong::Date{1995_y / oct / 2}});
     } // namespace database
 
     TEST_CASE("TEST musify::database::parse_and_load_song", "[database]")
@@ -188,14 +183,16 @@ namespace musify { namespace database {
         // ARRANGE
         Database& database = singleton::Singleton<Database>::get_instance();
         database.clear();
-        database.insert_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock);
-        database.insert_album("War", "U2", strong::Date{1983_y / 03 / 21});
-        database.insert_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_thing(
+            MusicalFactory{}.create_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock));
+        database.insert_thing(MusicalFactory{}.create_album("War", "U2", strong::Date{1983_y / 03 / 21}));
+        database.insert_thing(
+            MusicalFactory{}.create_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s}));
         // Insert more dummy songs to be confident that we fixed the "realloc bug"
-        database.insert_song("Dummy 1", "War", "U2", strong::Duration{4min + 40s});
-        database.insert_song("Dummy 2", "War", "U2", strong::Duration{4min + 40s});
-        database.insert_song("Dummy 3", "War", "U2", strong::Duration{4min + 40s});
-        database.insert_song("Dummy 4", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_thing(MusicalFactory{}.create_song("Dummy 1", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_song("Dummy 2", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_song("Dummy 3", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_song("Dummy 4", "War", "U2", strong::Duration{4min + 40s}));
 
         // ACT
         const auto things = database.find_things("Sunday Bloody Sunday");
@@ -211,14 +208,16 @@ namespace musify { namespace database {
         // ARRANGE
         Database& database = singleton::Singleton<Database>::get_instance();
         database.clear();
-        database.insert_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock);
-        database.insert_album("War", "U2", strong::Date{1983_y / 03 / 21});
-        database.insert_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_thing(
+            MusicalFactory{}.create_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock));
+        database.insert_thing(MusicalFactory{}.create_album("War", "U2", strong::Date{1983_y / 03 / 21}));
+        database.insert_thing(
+            MusicalFactory{}.create_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s}));
         // Insert more dummy songs to be confident that we fixed the "realloc bug"
-        database.insert_song("Dummy 1", "War", "U2", strong::Duration{4min + 40s});
-        database.insert_song("Dummy 2", "War", "U2", strong::Duration{4min + 40s});
-        database.insert_song("Dummy 3", "War", "U2", strong::Duration{4min + 40s});
-        database.insert_song("Dummy 4", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_thing(MusicalFactory{}.create_song("Dummy 1", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_song("Dummy 2", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_song("Dummy 3", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_song("Dummy 4", "War", "U2", strong::Duration{4min + 40s}));
         std::vector<std::pair<std::string, std::type_index>> names_and_typeinfos{};
 
         // ACT

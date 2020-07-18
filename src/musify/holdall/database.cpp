@@ -44,37 +44,16 @@ namespace musify { namespace database {
 
     void Database::display() const
     {
-        display_music_entities(std::cout, this->m_artists);
-        display_music_entities(std::cout, this->m_albums);
-        display_music_entities(std::cout, this->m_songs);
+        display_music_entities(std::cout, m_things);
     }
 
-    const Artist* Database::find_artist(const std::string& artist_name) const
+    const MusicalThing* Database::find_thing(const std::string& name, const std::type_info& thing_type) const
     {
-        const auto iter = this->m_artists.find(artist_name);
-        if (iter == this->m_artists.end())
-            return nullptr;
-        const auto& artist = iter->second;
-        return &artist;
-    }
-
-    const Album* Database::find_album(const std::string& album_name) const
-    {
-        const auto iter = this->m_albums.find(album_name);
-        if (iter == this->m_albums.end())
-            return nullptr;
-        const auto& albums = iter->second;
-        return &albums;
-    }
-
-    const Song* Database::find_song(const std::string& song_name) const
-    {
-        for (const Song& song : this->m_songs)
-        {
-            if (song.name() == song_name)
-                return &song;
-        }
-        return nullptr;
+        const auto [iter_begin, iter_end] = m_things.equal_range(name);
+        const auto iter = std::find_if(iter_begin, iter_end, [&](const auto& name_and_thing) {
+            return typeid(*name_and_thing.second) == thing_type;
+        });
+        return iter != iter_end ? iter->second.get() : nullptr;
     }
 
     Database::MusicalThings Database::find_things(const std::string& name) const
@@ -86,61 +65,11 @@ namespace musify { namespace database {
         return things;
     }
 
-    InsertionResult Database::insert_artist(std::string name, strong::Year start_year, strong::Rating rating,
-                                            strong::Genre genre)
+    InsertionResult Database::insert_thing(std::unique_ptr<MusicalThing> thing)
     {
-        assert(!name.empty());
-
-        const auto [iter_artist, result] = m_artists.emplace(name, Artist{name, start_year, rating, genre});
-        if (!result)
-            return InsertionResult::DuplicateArtist;
-        const Artist& artist = iter_artist->second;
-
-        m_things.emplace(name, &artist);
-
-        return InsertionResult::Ok;
-    }
-
-    InsertionResult Database::insert_album(std::string name, std::string artist_name, strong::Date date)
-    {
-        assert(!name.empty());
-
-        const auto iter_artist = m_artists.find(artist_name);
-        if (iter_artist == m_artists.end())
-            return InsertionResult::UnknownArtist;
-
-        const auto [iter_album, result] = m_albums.emplace(name, Album{name, artist_name, date});
-        if (!result)
-            return InsertionResult::DuplicateAlbum;
-        const Album& album = iter_album->second;
-
-        m_things.emplace(name, &album);
-
-        return InsertionResult::Ok;
-    }
-
-    InsertionResult Database::insert_song(std::string name, std::string album_name, std::string artist_name,
-                                          strong::Duration duration)
-    {
-        assert(!name.empty());
-
-        const auto iter_album = m_albums.find(album_name);
-        if (iter_album == m_albums.end())
-            return InsertionResult::UnknownAlbum;
-
-        const auto iter_artist = m_artists.find(artist_name);
-        if (iter_artist == m_artists.end())
-            return InsertionResult::UnknownArtist;
-
-        const auto iter_song =
-            std::find_if(m_songs.begin(), m_songs.end(), [&](const auto& song) { return song.name() == name; });
-        if (iter_song != m_songs.end())
-            return InsertionResult::DuplicateSong;
-        m_songs.emplace_back(name, album_name, artist_name, duration);
-        const Song& song = m_songs.back();
-
-        m_things.emplace(name, &song);
-
+        if (find_thing(thing->name(), typeid(*thing)))
+            return InsertionResult::DuplicateThing;
+        m_things.emplace(thing->name(), std::move(thing));
         return InsertionResult::Ok;
     }
 

@@ -1,6 +1,7 @@
 
 #include "database.impl.hpp"
 #include "input_output.impl.hpp"
+#include "musical_factory.hpp"
 #include <exception>
 #include <fstream>
 
@@ -85,7 +86,10 @@ namespace musify { namespace database {
         const auto genre_opt = strong::parse_genre(genre);
         if (!genre_opt)
             return LoadingResult::ParsingError;
-        return static_cast<LoadingResult>(database.insert_artist(name, *year_opt, *rating_opt, *genre_opt));
+        return database.insert_thing(MusicalFactory{}.create_artist(name, *year_opt, *rating_opt, *genre_opt)) ==
+                       InsertionResult::Ok
+                   ? LoadingResult::Ok
+                   : LoadingResult::DuplicateArtist;
     }
 
     LoadingResult parse_and_load_album(std::string name_artistname_date, Database& database)
@@ -99,7 +103,9 @@ namespace musify { namespace database {
         const auto date_opt = strong::parse_date(date);
         if (!date_opt)
             return LoadingResult::ParsingError;
-        return static_cast<LoadingResult>(database.insert_album(name, artistname, *date_opt));
+        return database.insert_thing(MusicalFactory{}.create_album(name, artistname, *date_opt)) == InsertionResult::Ok
+                   ? LoadingResult::Ok
+                   : LoadingResult::DuplicateAlbum;
     }
 
     LoadingResult parse_and_load_song(std::string name_albumname_artistname_duration, Database& database)
@@ -116,7 +122,10 @@ namespace musify { namespace database {
         const auto duration_opt = strong::parse_duration(duration);
         if (!duration_opt)
             return LoadingResult::ParsingError;
-        return static_cast<LoadingResult>(database.insert_song(name, albumname, artistname, *duration_opt));
+        return database.insert_thing(MusicalFactory{}.create_song(name, albumname, artistname, *duration_opt)) ==
+                       InsertionResult::Ok
+                   ? LoadingResult::Ok
+                   : LoadingResult::DuplicateSong;
     }
 
 }} // namespace musify::database

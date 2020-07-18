@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "musical_things.hpp"
+#include "musical_thing.hpp"
 #include "singleton.hpp"
 #include <string_view>
 #include <unordered_map>
@@ -10,6 +10,7 @@
 #include <functional>
 #include <list>
 #include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -37,20 +38,14 @@ namespace musify { namespace database {
         IncompleteLine = 4,
         ParsingError = 5,
         DuplicateArtist = 6,
-        UnknownArtist,
         DuplicateAlbum,
-        UnknownAlbum,
         DuplicateSong,
     };
 
     enum class InsertionResult
     {
         Ok = 0,
-        DuplicateArtist = 6,
-        UnknownArtist,
-        DuplicateAlbum,
-        UnknownAlbum,
-        DuplicateSong,
+        DuplicateThing = 6,
     };
 
     class Database
@@ -60,9 +55,6 @@ namespace musify { namespace database {
         Database() = default;
 
     public:
-        using Artists = BintreeOrHashtable<std::string, Artist>;
-        using Albums = BintreeOrHashtable<std::string, Album>;
-        using Songs = std::list<Song>;
         using ConstMusicalThingRef = std::reference_wrapper<MusicalThing const>;
         using MusicalThings = std::vector<ConstMusicalThingRef>;
 
@@ -72,28 +64,15 @@ namespace musify { namespace database {
 
         void display() const;
 
-        const Artist* find_artist(const std::string& artist_name) const;
+        const MusicalThing* find_thing(const std::string& name, const std::type_info& thing_type) const;
 
-        const Album* find_album(const std::string& album_name) const;
-
-        const Song* find_song(const std::string& song_name) const;
+        template <typename ThingT>
+        const ThingT* find_thing(const std::string& name) const
+        {
+            return static_cast<const ThingT*>(find_thing(name, typeid(ThingT)));
+        }
 
         MusicalThings find_things(const std::string& name) const;
-
-        const Artists& artists() const
-        {
-            return m_artists;
-        }
-
-        const Albums& albums() const
-        {
-            return m_albums;
-        }
-
-        const Songs& songs() const
-        {
-            return m_songs;
-        }
 
         template <typename ThingVisitorT>
         void visit_things(ThingVisitorT visitor) const
@@ -104,25 +83,13 @@ namespace musify { namespace database {
 
         void clear()
         {
-            m_artists.clear();
-            m_albums.clear();
-            m_songs.clear();
             m_things.clear();
         }
 
-        InsertionResult insert_artist(std::string name, strong::Year start_year, strong::Rating rating,
-                                      strong::Genre genre);
-
-        InsertionResult insert_album(std::string name, std::string artist_name, strong::Date);
-
-        InsertionResult insert_song(std::string name, std::string album_name, std::string artist_name,
-                                    strong::Duration duration);
+        InsertionResult insert_thing(std::unique_ptr<MusicalThing> thing);
 
     private:
-        Artists m_artists{};
-        Albums m_albums{};
-        Songs m_songs{};
-        std::multimap<std::string, const MusicalThing*> m_things{};
+        std::multimap<std::string, std::unique_ptr<MusicalThing>> m_things{};
     };
 
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);

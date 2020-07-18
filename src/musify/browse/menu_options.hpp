@@ -3,6 +3,7 @@
 
 #include <holdall/database.hpp>
 #include <holdall/menu.hpp>
+#include <holdall/musical_things.hpp>
 
 namespace mdb = musify::database;
 namespace mm = musify::menu;
@@ -38,14 +39,8 @@ inline bool option_load_database(const fs::path& database_file_path, mdb::Databa
     case mdb::LoadingResult::DuplicateArtist:
         std::cerr << "The database file contains a duplicate artist\n";
         break;
-    case mdb::LoadingResult::UnknownArtist:
-        std::cerr << "The database file refers to an unknown artist\n";
-        break;
     case mdb::LoadingResult::DuplicateAlbum:
         std::cerr << "The database file contains a duplicate album\n";
-        break;
-    case mdb::LoadingResult::UnknownAlbum:
-        std::cerr << "The database file refers to an unknown album\n";
         break;
     case mdb::LoadingResult::DuplicateSong:
         std::cerr << "The database file contains a duplicate song\n";
@@ -67,7 +62,7 @@ inline bool option_display_database(const mdb::Database& database)
 inline bool option_find_artist(const mdb::Database& database, const std::string& text)
 {
     std::cout << "Searching for artist '" << text << "'... ";
-    if (const mdb::Artist* artist = database.find_artist(text); artist)
+    if (const mdb::Artist* artist = database.find_thing<mdb::Artist>(text); artist)
         std::cout << "Found: " << *artist << "\n";
     else
         std::cout << "Unknown artist\n";
@@ -77,7 +72,7 @@ inline bool option_find_artist(const mdb::Database& database, const std::string&
 inline bool option_find_album(const mdb::Database& database, const std::string& text)
 {
     std::cout << "Searching for Album '" << text << "'... ";
-    if (const auto* album = database.find_album(text); album)
+    if (const auto* album = database.find_thing<mdb::Album>(text); album)
         std::cout << "Found: " << *album << "\n";
     else
         std::cout << "Unknown album\n";
@@ -87,7 +82,7 @@ inline bool option_find_album(const mdb::Database& database, const std::string& 
 inline bool option_find_song(const mdb::Database& database, const std::string& text)
 {
     std::cout << "Searching for Song '" << text << "'... ";
-    if (const auto* song = database.find_song(text); song)
+    if (const auto* song = database.find_thing<mdb::Song>(text); song)
         std::cout << "Found: " << *song << "\n";
     else
         std::cout << "Unknown song\n";

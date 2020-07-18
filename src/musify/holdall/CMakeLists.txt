@@ -15,6 +15,8 @@ add_library(musify-holdall
     musical_base.hpp
     musical_things.cpp
     musical_things.hpp
+    musical_factory.cpp
+    musical_factory.hpp
     )
 
 target_link_libraries(musify-holdall PRIVATE common_settings fmt::fmt PUBLIC date::date)
