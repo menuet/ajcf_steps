@@ -48,12 +48,6 @@ namespace musify { namespace database {
         output_stream << "-----------------\n";
     }
 
-    LoadingResult parse_and_load_artist(std::string name_year_rating_genre, Database& database);
-
-    LoadingResult parse_and_load_album(std::string name_artistname_date, Database& database);
-
-    LoadingResult parse_and_load_song(std::string name_albumname_artistname_duration, Database& database);
-
     bool operator==(const Artist& artist1, const Artist& artist2);
 
     bool operator==(const Album& album1, const Album& album2);

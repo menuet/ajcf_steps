@@ -153,46 +153,19 @@ namespace musify { namespace database {
         // TODO
     }
 
-    TEST_CASE("TEST musify::database::parse_and_load_artist", "[database]")
-    {
-        // TODO
-    }
-
-    TEST_CASE("TEST musify::database::parse_and_load_album", "[database]")
-    {
-        // ARRANGE
-        Database& database = singleton::Singleton<Database>::get_instance();
-        database.clear();
-        database.insert_thing(
-            MusicalFactory{}.create_artist("Oasis", strong::Year{1991_y}, strong::Rating{3.7f}, strong::Genre::Pop));
-
-        // ACT
-        const auto result = parse_and_load_album("Morning Glory,Oasis,1995/10/02", database);
-
-        // ASSERT
-        REQUIRE(result == LoadingResult::Ok);
-    } // namespace database
-
-    TEST_CASE("TEST musify::database::parse_and_load_song", "[database]")
-    {
-        // TODO
-    }
-
     TEST_CASE("TEST musify::database::Database::find_things", "[database]")
     {
         // ARRANGE
         Database& database = singleton::Singleton<Database>::get_instance();
         database.clear();
-        database.insert_thing(
-            MusicalFactory{}.create_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock));
-        database.insert_thing(MusicalFactory{}.create_album("War", "U2", strong::Date{1983_y / 03 / 21}));
-        database.insert_thing(
-            MusicalFactory{}.create_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_thing("Artist", "U2"));
+        database.insert_thing(MusicalFactory{}.create_thing("Album", "War"));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Sunday Bloody Sunday"));
         // Insert more dummy songs to be confident that we fixed the "realloc bug"
-        database.insert_thing(MusicalFactory{}.create_song("Dummy 1", "War", "U2", strong::Duration{4min + 40s}));
-        database.insert_thing(MusicalFactory{}.create_song("Dummy 2", "War", "U2", strong::Duration{4min + 40s}));
-        database.insert_thing(MusicalFactory{}.create_song("Dummy 3", "War", "U2", strong::Duration{4min + 40s}));
-        database.insert_thing(MusicalFactory{}.create_song("Dummy 4", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 1"));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 2"));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 3"));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 4"));
 
         // ACT
         const auto things = database.find_things("Sunday Bloody Sunday");
@@ -208,16 +181,14 @@ namespace musify { namespace database {
         // ARRANGE
         Database& database = singleton::Singleton<Database>::get_instance();
         database.clear();
-        database.insert_thing(
-            MusicalFactory{}.create_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock));
-        database.insert_thing(MusicalFactory{}.create_album("War", "U2", strong::Date{1983_y / 03 / 21}));
-        database.insert_thing(
-            MusicalFactory{}.create_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_thing("Artist", "U2"));
+        database.insert_thing(MusicalFactory{}.create_thing("Album", "War"));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Sunday Bloody Sunday"));
         // Insert more dummy songs to be confident that we fixed the "realloc bug"
-        database.insert_thing(MusicalFactory{}.create_song("Dummy 1", "War", "U2", strong::Duration{4min + 40s}));
-        database.insert_thing(MusicalFactory{}.create_song("Dummy 2", "War", "U2", strong::Duration{4min + 40s}));
-        database.insert_thing(MusicalFactory{}.create_song("Dummy 3", "War", "U2", strong::Duration{4min + 40s}));
-        database.insert_thing(MusicalFactory{}.create_song("Dummy 4", "War", "U2", strong::Duration{4min + 40s}));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 1"));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 2"));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 3"));
+        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 4"));
         std::vector<std::pair<std::string, std::type_index>> names_and_typeinfos{};
 
         // ACT

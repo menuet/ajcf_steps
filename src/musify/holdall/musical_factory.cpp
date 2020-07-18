@@ -4,22 +4,16 @@
 
 namespace musify::database {
 
-    std::unique_ptr<MusicalThing> MusicalFactory::create_artist(std::string name, strong::Year start_year,
-                                                                strong::Rating rating, strong::Genre genre)
+    std::unique_ptr<MusicalThing> MusicalFactory::create_thing(std::string_view thing_type_label,
+                                                               std::string thing_name)
     {
-        return std::make_unique<Artist>(std::move(name), start_year, rating, genre);
-    }
-
-    std::unique_ptr<MusicalThing> MusicalFactory::create_album(std::string name, std::string artist_name,
-                                                               strong::Date date)
-    {
-        return std::make_unique<Album>(std::move(name), std::move(artist_name), date);
-    }
-
-    std::unique_ptr<MusicalThing> MusicalFactory::create_song(std::string name, std::string album_name,
-                                                              std::string artist_name, strong::Duration duration)
-    {
-        return std::make_unique<Song>(std::move(name), std::move(album_name), std::move(artist_name), duration);
+        if (thing_type_label == Artist::type_label)
+            return std::make_unique<Artist>(std::move(thing_name));
+        if (thing_type_label == Album::type_label)
+            return std::make_unique<Album>(std::move(thing_name));
+        if (thing_type_label == Song::type_label)
+            return std::make_unique<Song>(std::move(thing_name));
+        return nullptr;
     }
 
 } // namespace musify::database

@@ -37,9 +37,7 @@ namespace musify { namespace database {
         UnknownLineType = 3,
         IncompleteLine = 4,
         ParsingError = 5,
-        DuplicateArtist = 6,
-        DuplicateAlbum,
-        DuplicateSong,
+        DuplicateThing = 6,
     };
 
     enum class InsertionResult

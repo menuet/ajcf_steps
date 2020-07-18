@@ -25,6 +25,10 @@ namespace musify::database {
             return !(left == right);
         }
 
+        Artist(std::string name) : MusicalBase{name}
+        {
+        }
+
         Artist(std::string name, strong::Year start_year, strong::Rating rating, strong::Genre genre)
             : MusicalBase{name}, m_start_year{start_year}, m_rating{rating}, m_genre{genre}
         {
@@ -34,6 +38,8 @@ namespace musify::database {
         {
             return type_label;
         }
+
+        virtual ParsingResult parse_details(std::string_view details) final;
 
     private:
         virtual void details_to_stream(std::ostream& output_stream) const final;
@@ -58,6 +64,10 @@ namespace musify::database {
             return !(left == right);
         }
 
+        Album(std::string name) : MusicalBase{name}
+        {
+        }
+
         Album(std::string name, std::string artist_name, strong::Date date)
             : MusicalBase{name}, m_artist_name{artist_name}, m_date{date}
         {
@@ -67,6 +77,8 @@ namespace musify::database {
         {
             return type_label;
         }
+
+        virtual ParsingResult parse_details(std::string_view details) final;
 
     private:
         virtual void details_to_stream(std::ostream& output_stream) const final;
@@ -90,6 +102,10 @@ namespace musify::database {
             return !(left == right);
         }
 
+        Song(std::string name) : MusicalBase{name}
+        {
+        }
+
         Song(std::string name, std::string album_name, std::string artist_name, strong::Duration duration)
             : MusicalBase{name}, m_album_name{album_name}, m_artist_name{artist_name}, m_duration{duration}
         {
@@ -99,6 +115,8 @@ namespace musify::database {
         {
             return type_label;
         }
+
+        virtual ParsingResult parse_details(std::string_view details) final;
 
     private:
         virtual void details_to_stream(std::ostream& output_stream) const final;

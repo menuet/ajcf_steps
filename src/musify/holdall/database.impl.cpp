@@ -46,86 +46,25 @@ namespace musify { namespace database {
         if (line[0] == '#')
             return LoadingResult::Ok;
 
-        const auto [line_type, remaining_text] = parse_until(line, '=');
+        const auto [thing_type_label, thing_data] = parse_until(line, '=');
+        const auto [thing_name, thing_details] = parse_until(thing_data, ',');
 
-        if (line_type == "Artist")
+        auto thing = MusicalFactory{}.create_thing(thing_type_label, thing_name);
+        if (!thing)
+            return LoadingResult::UnknownLineType;
+
+        switch (thing->parse_details(thing_details))
         {
-            return parse_and_load_artist(remaining_text, database);
+        case ParsingResult::IncompleteData:
+            return LoadingResult::IncompleteLine;
+        case ParsingResult::InvalidData:
+            return LoadingResult::ParsingError;
+        default:
+            break;
         }
 
-        if (line_type == "Album")
-        {
-            return parse_and_load_album(remaining_text, database);
-        }
-
-        if (line_type == "Song")
-        {
-            return parse_and_load_song(remaining_text, database);
-        }
-
-        return LoadingResult::UnknownLineType;
-    }
-
-    LoadingResult parse_and_load_artist(std::string name_year_rating_genre, Database& database)
-    {
-        const auto [name, year_rating_genre] = parse_until(name_year_rating_genre, ',');
-        if (name.empty())
-            return LoadingResult::IncompleteLine;
-        const auto [year, rating_genre] = parse_until(year_rating_genre, ',');
-        if (year.empty())
-            return LoadingResult::IncompleteLine;
-        const auto [rating, genre] = parse_until(rating_genre, ',');
-        if (rating.empty() || genre.empty())
-            return LoadingResult::IncompleteLine;
-        const auto year_opt = strong::parse_year(year);
-        if (!year_opt)
-            return LoadingResult::ParsingError;
-        const auto rating_opt = strong::parse_rating(rating);
-        if (!rating_opt)
-            return LoadingResult::ParsingError;
-        const auto genre_opt = strong::parse_genre(genre);
-        if (!genre_opt)
-            return LoadingResult::ParsingError;
-        return database.insert_thing(MusicalFactory{}.create_artist(name, *year_opt, *rating_opt, *genre_opt)) ==
-                       InsertionResult::Ok
-                   ? LoadingResult::Ok
-                   : LoadingResult::DuplicateArtist;
-    }
-
-    LoadingResult parse_and_load_album(std::string name_artistname_date, Database& database)
-    {
-        const auto [name, artistname_date] = parse_until(name_artistname_date, ',');
-        if (name.empty())
-            return LoadingResult::IncompleteLine;
-        const auto [artistname, date] = parse_until(artistname_date, ',');
-        if (artistname.empty() || date.empty())
-            return LoadingResult::IncompleteLine;
-        const auto date_opt = strong::parse_date(date);
-        if (!date_opt)
-            return LoadingResult::ParsingError;
-        return database.insert_thing(MusicalFactory{}.create_album(name, artistname, *date_opt)) == InsertionResult::Ok
-                   ? LoadingResult::Ok
-                   : LoadingResult::DuplicateAlbum;
-    }
-
-    LoadingResult parse_and_load_song(std::string name_albumname_artistname_duration, Database& database)
-    {
-        const auto [name, albumname_artistname_duration] = parse_until(name_albumname_artistname_duration, ',');
-        if (name.empty())
-            return LoadingResult::IncompleteLine;
-        const auto [albumname, artistname_duration] = parse_until(albumname_artistname_duration, ',');
-        if (albumname.empty())
-            return LoadingResult::IncompleteLine;
-        const auto [artistname, duration] = parse_until(artistname_duration, ',');
-        if (artistname.empty() || duration.empty())
-            return LoadingResult::IncompleteLine;
-        const auto duration_opt = strong::parse_duration(duration);
-        if (!duration_opt)
-            return LoadingResult::ParsingError;
-        return database.insert_thing(MusicalFactory{}.create_song(name, albumname, artistname, *duration_opt)) ==
-                       InsertionResult::Ok
-                   ? LoadingResult::Ok
-                   : LoadingResult::DuplicateSong;
+        return database.insert_thing(std::move(thing)) == InsertionResult::Ok ? LoadingResult::Ok
+                                                                              : LoadingResult::DuplicateThing;
     }
 
 }} // namespace musify::database

@@ -36,14 +36,8 @@ inline bool option_load_database(const fs::path& database_file_path, mdb::Databa
     case mdb::LoadingResult::ParsingError:
         std::cerr << "The database file contains some non-parsable data\n";
         break;
-    case mdb::LoadingResult::DuplicateArtist:
-        std::cerr << "The database file contains a duplicate artist\n";
-        break;
-    case mdb::LoadingResult::DuplicateAlbum:
-        std::cerr << "The database file contains a duplicate album\n";
-        break;
-    case mdb::LoadingResult::DuplicateSong:
-        std::cerr << "The database file contains a duplicate song\n";
+    case mdb::LoadingResult::DuplicateThing:
+        std::cerr << "The database file contains a duplicate thing\n";
         break;
     case mdb::LoadingResult::Ok:
         std::cout << "The database file has been loaded\n";
