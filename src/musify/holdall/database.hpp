@@ -59,9 +59,11 @@ namespace musify { namespace database {
         }
 
     protected:
-        virtual void to_stream(std::ostream& output_stream) const override;
+        virtual void to_stream(std::ostream& output_stream) const final;
 
     private:
+        virtual void details_to_stream(std::ostream& output_stream) const = 0;
+
         std::string m_name{};
     };
 
@@ -94,15 +96,14 @@ namespace musify { namespace database {
             return m_albums;
         }
 
-        virtual std::string_view concrete_type_label() const override
+        virtual std::string_view concrete_type_label() const final
         {
             return type_label;
         }
 
-    protected:
-        virtual void to_stream(std::ostream& output_stream) const override;
-
     private:
+        virtual void details_to_stream(std::ostream& output_stream) const final;
+
         strong::Year m_start_year{};
         strong::Rating m_rating{};
         strong::Genre m_genre{};
@@ -129,15 +130,14 @@ namespace musify { namespace database {
         {
         }
 
-        virtual std::string_view concrete_type_label() const override
+        virtual std::string_view concrete_type_label() const final
         {
             return type_label;
         }
 
-    protected:
-        virtual void to_stream(std::ostream& output_stream) const override;
-
     private:
+        virtual void details_to_stream(std::ostream& output_stream) const final;
+
         const Artist* m_artist{};
         strong::Date m_date{};
     };
@@ -162,15 +162,14 @@ namespace musify { namespace database {
         {
         }
 
-        virtual std::string_view concrete_type_label() const override
+        virtual std::string_view concrete_type_label() const final
         {
             return type_label;
         }
 
-    protected:
-        virtual void to_stream(std::ostream& output_stream) const override;
-
     private:
+        virtual void details_to_stream(std::ostream& output_stream) const final;
+
         const Album* m_album{};
         const Artist* m_artist{};
         strong::Duration m_duration{};
