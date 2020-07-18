@@ -17,6 +17,9 @@ inline bool option_quit()
 
 inline bool option_load_database(const fs::path& database_file_path, mdb::Database& database)
 {
+    std::cout << "Artist class registered: " << &mdb::Artist::registrar << '\n';
+    std::cout << "Album class registered: " << &mdb::Album::registrar << '\n';
+    std::cout << "Song class registered: " << &mdb::Song::registrar << '\n';
     std::cout << "Loading database file " << database_file_path << "...\n";
     const auto result = mdb::load_database(database_file_path, database);
     switch (result)

@@ -157,15 +157,16 @@ namespace musify { namespace database {
     {
         // ARRANGE
         Database& database = singleton::Singleton<Database>::get_instance();
+        MusicalFactory& factory = singleton::Singleton<MusicalFactory>::get_instance();
         database.clear();
-        database.insert_thing(MusicalFactory{}.create_thing("Artist", "U2"));
-        database.insert_thing(MusicalFactory{}.create_thing("Album", "War"));
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Sunday Bloody Sunday"));
+        database.insert_thing(factory.create_thing("Artist", "U2"));
+        database.insert_thing(factory.create_thing("Album", "War"));
+        database.insert_thing(factory.create_thing("Song", "Sunday Bloody Sunday"));
         // Insert more dummy songs to be confident that we fixed the "realloc bug"
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 1"));
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 2"));
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 3"));
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 4"));
+        database.insert_thing(factory.create_thing("Song", "Dummy 1"));
+        database.insert_thing(factory.create_thing("Song", "Dummy 2"));
+        database.insert_thing(factory.create_thing("Song", "Dummy 3"));
+        database.insert_thing(factory.create_thing("Song", "Dummy 4"));
 
         // ACT
         const auto things = database.find_things("Sunday Bloody Sunday");
@@ -180,15 +181,16 @@ namespace musify { namespace database {
     {
         // ARRANGE
         Database& database = singleton::Singleton<Database>::get_instance();
+        MusicalFactory& factory = singleton::Singleton<MusicalFactory>::get_instance();
         database.clear();
-        database.insert_thing(MusicalFactory{}.create_thing("Artist", "U2"));
-        database.insert_thing(MusicalFactory{}.create_thing("Album", "War"));
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Sunday Bloody Sunday"));
+        database.insert_thing(factory.create_thing("Artist", "U2"));
+        database.insert_thing(factory.create_thing("Album", "War"));
+        database.insert_thing(factory.create_thing("Song", "Sunday Bloody Sunday"));
         // Insert more dummy songs to be confident that we fixed the "realloc bug"
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 1"));
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 2"));
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 3"));
-        database.insert_thing(MusicalFactory{}.create_thing("Song", "Dummy 4"));
+        database.insert_thing(factory.create_thing("Song", "Dummy 1"));
+        database.insert_thing(factory.create_thing("Song", "Dummy 2"));
+        database.insert_thing(factory.create_thing("Song", "Dummy 3"));
+        database.insert_thing(factory.create_thing("Song", "Dummy 4"));
         std::vector<std::pair<std::string, std::type_index>> names_and_typeinfos{};
 
         // ACT

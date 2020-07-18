@@ -15,6 +15,8 @@ namespace musify::database {
         return {text_before_separator, text_after_separator};
     }
 
+    MusicalThingRegistrar<Artist> Artist::registrar{};
+
     void Artist::details_to_stream(std::ostream& output_stream) const
     {
         output_stream << m_start_year << ", " << m_rating << ", " << m_genre;
@@ -43,6 +45,8 @@ namespace musify::database {
         return ParsingResult::Ok;
     }
 
+    MusicalThingRegistrar<Album> Album::registrar{};
+
     void Album::details_to_stream(std::ostream& output_stream) const
     {
         output_stream << m_artist_name << ", " << m_date;
@@ -60,6 +64,8 @@ namespace musify::database {
         m_date = date_opt.value();
         return ParsingResult::Ok;
     }
+
+    MusicalThingRegistrar<Song> Song::registrar{};
 
     void Song::details_to_stream(std::ostream& output_stream) const
     {

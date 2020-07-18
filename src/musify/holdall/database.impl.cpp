@@ -49,7 +49,9 @@ namespace musify { namespace database {
         const auto [thing_type_label, thing_data] = parse_until(line, '=');
         const auto [thing_name, thing_details] = parse_until(thing_data, ',');
 
-        auto thing = MusicalFactory{}.create_thing(thing_type_label, thing_name);
+        MusicalFactory& factory = singleton::Singleton<MusicalFactory>::get_instance();
+
+        auto thing = factory.create_thing(thing_type_label, thing_name);
         if (!thing)
             return LoadingResult::UnknownLineType;
 

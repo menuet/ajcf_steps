@@ -2,6 +2,7 @@
 #pragma once
 
 #include "musical_base.hpp"
+#include "musical_factory.hpp"
 #include "strong_types.hpp"
 #include <string_view>
 #include <vector>
@@ -14,6 +15,8 @@ namespace musify::database {
 
     public:
         static constexpr std::string_view type_label{"Artist"};
+
+        static MusicalThingRegistrar<Artist> registrar;
 
         friend bool operator==(const Artist& left, const Artist& right)
         {
@@ -54,6 +57,8 @@ namespace musify::database {
     public:
         static constexpr std::string_view type_label{"Album"};
 
+        static MusicalThingRegistrar<Album> registrar;
+
         friend bool operator==(const Album& left, const Album& right)
         {
             return left.name() == right.name();
@@ -91,6 +96,8 @@ namespace musify::database {
     {
     public:
         static constexpr std::string_view type_label{"Song"};
+
+        static MusicalThingRegistrar<Song> registrar;
 
         friend bool operator==(const Song& left, const Song& right)
         {
