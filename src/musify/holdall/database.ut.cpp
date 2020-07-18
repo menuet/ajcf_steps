@@ -217,18 +217,10 @@ namespace musify { namespace database {
         database.insert_song("Dummy 2", "War", "U2", strong::Duration{4min + 40s});
         database.insert_song("Dummy 3", "War", "U2", strong::Duration{4min + 40s});
         database.insert_song("Dummy 4", "War", "U2", strong::Duration{4min + 40s});
-        struct NameAndTypeInfoCollector : ThingVisitor
-        {
-            void visit(const MusicalThing& thing) final
-            {
-                names_and_typeinfos.push_back({thing.name(), typeid(thing)});
-            }
-            std::vector<std::pair<std::string, std::type_index>> names_and_typeinfos{};
-        };
-        NameAndTypeInfoCollector visitor{};
+        std::vector<std::pair<std::string, std::type_index>> names_and_typeinfos{};
 
         // ACT
-        database.visit_things(visitor);
+        database.visit_things([&](const auto& thing) { names_and_typeinfos.push_back({thing.name(), typeid(thing)}); });
 
         // ASSERT
         auto expected = std::vector<std::pair<std::string, std::type_index>>{
@@ -237,8 +229,8 @@ namespace musify { namespace database {
             {"Dummy 4", typeid(Song)},
         };
         std::sort(expected.begin(), expected.end());
-        std::sort(visitor.names_and_typeinfos.begin(), visitor.names_and_typeinfos.end());
-        REQUIRE(visitor.names_and_typeinfos == expected);
+        std::sort(names_and_typeinfos.begin(), names_and_typeinfos.end());
+        REQUIRE(names_and_typeinfos == expected);
     }
 
 }} // namespace musify::database
