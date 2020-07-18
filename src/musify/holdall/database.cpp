@@ -86,6 +86,12 @@ namespace musify { namespace database {
         return things;
     }
 
+    void Database::visit_things(ThingVisitor& visitor) const
+    {
+        std::for_each(m_things.begin(), m_things.end(),
+                      [&](const auto& name_and_thing) { visitor.visit(*name_and_thing.second); });
+    }
+
     InsertionResult Database::insert_artist(std::string name, strong::Year start_year, strong::Rating rating,
                                             strong::Genre genre)
     {

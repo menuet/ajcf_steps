@@ -3,6 +3,7 @@
 #include "database.impl.hpp"
 #include <catch2/catch.hpp>
 #include <sstream>
+#include <typeindex>
 
 namespace musify { namespace database {
 
@@ -202,6 +203,42 @@ namespace musify { namespace database {
         REQUIRE(things.size() == 1);
         REQUIRE(things[0].get().name() == "Sunday Bloody Sunday");
         REQUIRE(typeid(things[0].get()) == typeid(Song));
+    }
+
+    TEST_CASE("TEST musify::database::Database::visit_things", "[database]")
+    {
+        // ARRANGE
+        Database database{};
+        database.insert_artist("U2", strong::Year{1976_y}, strong::Rating{4.5}, strong::Genre::Rock);
+        database.insert_album("War", "U2", strong::Date{1983_y / 03 / 21});
+        database.insert_song("Sunday Bloody Sunday", "War", "U2", strong::Duration{4min + 40s});
+        // Insert more dummy songs to be confident that we fixed the "realloc bug"
+        database.insert_song("Dummy 1", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_song("Dummy 2", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_song("Dummy 3", "War", "U2", strong::Duration{4min + 40s});
+        database.insert_song("Dummy 4", "War", "U2", strong::Duration{4min + 40s});
+        struct NameAndTypeInfoCollector : ThingVisitor
+        {
+            void visit(const MusicalThing& thing) final
+            {
+                names_and_typeinfos.push_back({thing.name(), typeid(thing)});
+            }
+            std::vector<std::pair<std::string, std::type_index>> names_and_typeinfos{};
+        };
+        NameAndTypeInfoCollector visitor{};
+
+        // ACT
+        database.visit_things(visitor);
+
+        // ASSERT
+        auto expected = std::vector<std::pair<std::string, std::type_index>>{
+            {"U2", typeid(Artist)},    {"War", typeid(Album)},    {"Sunday Bloody Sunday", typeid(Song)},
+            {"Dummy 1", typeid(Song)}, {"Dummy 2", typeid(Song)}, {"Dummy 3", typeid(Song)},
+            {"Dummy 4", typeid(Song)},
+        };
+        std::sort(expected.begin(), expected.end());
+        std::sort(visitor.names_and_typeinfos.begin(), visitor.names_and_typeinfos.end());
+        REQUIRE(visitor.names_and_typeinfos == expected);
     }
 
 }} // namespace musify::database

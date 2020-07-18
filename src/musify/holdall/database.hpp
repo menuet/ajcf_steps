@@ -199,6 +199,12 @@ namespace musify { namespace database {
         DuplicateSong,
     };
 
+    struct ThingVisitor
+    {
+        virtual ~ThingVisitor() = default;
+        virtual void visit(const MusicalThing& thing) = 0;
+    };
+
     class Database
     {
     public:
@@ -238,6 +244,8 @@ namespace musify { namespace database {
         {
             return m_songs;
         }
+
+        void visit_things(ThingVisitor& visitor) const;
 
         InsertionResult insert_artist(std::string name, strong::Year start_year, strong::Rating rating,
                                       strong::Genre genre);

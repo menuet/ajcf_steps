@@ -29,7 +29,9 @@ void menu_loop(const fs::path& database_file_path)
         mm::MenuOption{'B', "Find the alBum 'Parachutes'", [&] { return option_find_album(database, "Parachutes"); }},
         mm::MenuOption{'S', "Find the Song 'Daylight'", [&] { return option_find_song(database, "Daylight"); }},
         mm::MenuOption{'E', "Find anything which name Equals 'Supreme NTM'",
-                       [&] { return option_find_anything_which_name_equals(database, "Supreme NTM"); }}};
+                       [&] { return option_find_anything_which_name_equals(database, "Supreme NTM"); }},
+        mm::MenuOption{'C', "Find anything which name Contains 'ol'",
+                       [&] { return option_find_anything_which_name_contains(database, "ol"); }}};
 
     mm::menu_loop(menu);
 }

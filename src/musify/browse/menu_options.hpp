@@ -120,3 +120,38 @@ inline bool option_find_anything_which_name_equals(const mdb::Database& database
         std::cout << "Nothing found\n";
     return true;
 }
+
+struct TextInNameTesterVisitor : mdb::ThingVisitor
+{
+    TextInNameTesterVisitor(std::string text) : text{std::move(text)}
+    {
+    }
+
+    void visit(const mdb::MusicalThing& thing) final
+    {
+        if (thing.name().find(text) != std::string::npos)
+            things_containing_text.push_back(thing);
+    }
+
+    std::string text;
+    std::vector<std::reference_wrapper<const mdb::MusicalThing>> things_containing_text;
+};
+
+inline bool option_find_anything_which_name_contains(const mdb::Database& database, const std::string& text)
+{
+    std::cout << "Searching for anything which name contains '" << text << "'... ";
+    TextInNameTesterVisitor visitor{text};
+    database.visit_things(visitor);
+    if (!visitor.things_containing_text.empty())
+    {
+        std::cout << "Found: " << visitor.things_containing_text.size() << " things\n";
+        for (const auto& thing_refwrap : visitor.things_containing_text)
+        {
+            const auto& thing = thing_refwrap.get();
+            std::cout << "Found: " << thing << '\n';
+        }
+    }
+    else
+        std::cout << "Nothing found\n";
+    return true;
+}
