@@ -119,11 +119,8 @@ namespace musify { namespace database {
         REQUIRE(database.artists().begin()->second ==
                 Artist{"Artist1", strong::Year{2001_y}, strong::Rating{4.5f}, strong::Genre::Rock});
         REQUIRE(database.albums().size() == 1);
-        REQUIRE(database.albums().begin()->second ==
-                Album{"Album1", &database.artists().begin()->second, strong::Date{2020_y / mar / 9}});
-        REQUIRE(database.songs() ==
-                std::list<Song>{{"Song1", &database.albums().begin()->second, &database.artists().begin()->second,
-                                 strong::Duration{3min + 45s}}});
+        REQUIRE(database.albums().begin()->second == Album{"Album1", "Artist1", strong::Date{2020_y / mar / 9}});
+        REQUIRE(database.songs() == std::list<Song>{{"Song1", "Album1", "Artist1", strong::Duration{3min + 45s}}});
     }
 
     TEST_CASE("TEST musify::database::display_music_entities with artists", "[database]")
@@ -140,11 +137,11 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(output_stream.str() ==
                 "-----------------\n"
-                "Artist #1: {{a1, Artist}, 2000, 1.5, Pop, 0 albums}\n"
+                "Artist #1: {{a1, Artist}, 2000, 1.5, Pop}\n"
                 "-----------------\n"
-                "Artist #2: {{a2, Artist}, 2001, 3.0, Rock, 0 albums}\n"
+                "Artist #2: {{a2, Artist}, 2001, 3.0, Rock}\n"
                 "-----------------\n"
-                "Artist #3: {{a3, Artist}, 2002, 5.0, Jazz, 0 albums}\n"
+                "Artist #3: {{a3, Artist}, 2002, 5.0, Jazz}\n"
                 "-----------------\n"
                 "--> 3 Artists\n"
                 "-----------------\n");
@@ -178,8 +175,7 @@ namespace musify { namespace database {
         // ASSERT
         REQUIRE(result == LoadingResult::Ok);
         REQUIRE(database.albums().size() == 1);
-        REQUIRE(database.albums().begin()->second ==
-                Album{"Morning Glory", &database.artists().begin()->second, strong::Date{1995_y / oct / 2}});
+        REQUIRE(database.albums().begin()->second == Album{"Morning Glory", "Oasis", strong::Date{1995_y / oct / 2}});
     } // namespace database
 
     TEST_CASE("TEST musify::database::parse_and_load_song", "[database]")

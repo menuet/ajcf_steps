@@ -9,6 +9,12 @@ add_library(musify-holdall
     database.impl.hpp
     strong_types.cpp
     strong_types.hpp
+    musical_thing.cpp
+    musical_thing.hpp
+    musical_base.cpp
+    musical_base.hpp
+    musical_things.cpp
+    musical_things.hpp
     )
 
 target_link_libraries(musify-holdall PRIVATE common_settings fmt::fmt PUBLIC date::date)

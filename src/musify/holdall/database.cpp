@@ -108,14 +108,11 @@ namespace musify { namespace database {
         const auto iter_artist = m_artists.find(artist_name);
         if (iter_artist == m_artists.end())
             return InsertionResult::UnknownArtist;
-        Artist& artist = iter_artist->second;
 
-        const auto [iter_album, result] = m_albums.emplace(name, Album{name, &artist, date});
+        const auto [iter_album, result] = m_albums.emplace(name, Album{name, artist_name, date});
         if (!result)
             return InsertionResult::DuplicateAlbum;
         const Album& album = iter_album->second;
-
-        artist.m_albums.push_back(&album);
 
         m_things.emplace(name, &album);
 
@@ -130,51 +127,21 @@ namespace musify { namespace database {
         const auto iter_album = m_albums.find(album_name);
         if (iter_album == m_albums.end())
             return InsertionResult::UnknownAlbum;
-        const Album& album = iter_album->second;
 
         const auto iter_artist = m_artists.find(artist_name);
         if (iter_artist == m_artists.end())
             return InsertionResult::UnknownArtist;
-        const Artist& artist = iter_artist->second;
 
         const auto iter_song =
             std::find_if(m_songs.begin(), m_songs.end(), [&](const auto& song) { return song.name() == name; });
         if (iter_song != m_songs.end())
             return InsertionResult::DuplicateSong;
-        m_songs.emplace_back(name, &album, &artist, duration);
+        m_songs.emplace_back(name, album_name, artist_name, duration);
         const Song& song = m_songs.back();
 
         m_things.emplace(name, &song);
 
         return InsertionResult::Ok;
-    }
-
-    std::ostream& operator<<(std::ostream& output_stream, const MusicalThing& thing)
-    {
-        thing.to_stream(output_stream);
-        return output_stream;
-    }
-
-    void MusicalBase::to_stream(std::ostream& output_stream) const
-    {
-        output_stream << "{{" << name() << ", " << concrete_type_label() << "}, ";
-        details_to_stream(output_stream);
-        output_stream << "}";
-    }
-
-    void Artist::details_to_stream(std::ostream& output_stream) const
-    {
-        output_stream << m_start_year << ", " << m_rating << ", " << m_genre << ", " << m_albums.size() << " albums";
-    }
-
-    void Album::details_to_stream(std::ostream& output_stream) const
-    {
-        output_stream << m_artist->name() << ", " << m_date;
-    }
-
-    void Song::details_to_stream(std::ostream& output_stream) const
-    {
-        output_stream << m_album->name() << ", " << m_artist->name() << ", " << m_duration;
     }
 
 }} // namespace musify::database

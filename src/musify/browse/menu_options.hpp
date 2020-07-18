@@ -103,17 +103,7 @@ inline bool option_find_anything_which_name_equals(const mdb::Database& database
         for (const auto& thing_refwrap : things)
         {
             const auto& thing = thing_refwrap.get();
-            std::cout << "Found: " << thing;
-            if (const auto artist = dynamic_cast<const mdb::Artist*>(&thing); artist)
-            {
-                std::cout << " (albums: ";
-                for (const auto& artist_album : artist->albums())
-                {
-                    std::cout << artist_album->name() << ", ";
-                }
-                std::cout << ')';
-            }
-            std::cout << '\n';
+            std::cout << "Found: " << thing << '\n';
         }
     }
     else
