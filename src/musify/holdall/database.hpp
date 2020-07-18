@@ -4,6 +4,7 @@
 #include "strong_types.hpp"
 #include <string_view>
 #include <unordered_map>
+#include <algorithm>
 #include <filesystem>
 #include <functional>
 #include <list>
@@ -199,8 +200,6 @@ namespace musify { namespace database {
         DuplicateSong,
     };
 
-    using ThingVisitor = std::function<void(const MusicalThing&)>;
-
     class Database
     {
     public:
@@ -241,7 +240,12 @@ namespace musify { namespace database {
             return m_songs;
         }
 
-        void visit_things(ThingVisitor visitor) const;
+        template <typename ThingVisitorT>
+        void visit_things(ThingVisitorT visitor) const
+        {
+            std::for_each(m_things.begin(), m_things.end(),
+                          [&](const auto& name_and_thing) { visitor(*name_and_thing.second); });
+        }
 
         InsertionResult insert_artist(std::string name, strong::Year start_year, strong::Rating rating,
                                       strong::Genre genre);
