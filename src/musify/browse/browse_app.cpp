@@ -5,6 +5,7 @@
 #include <optional>
 
 namespace ms = musify::singleton;
+namespace mo = musify::observer;
 
 std::optional<fs::path> check_arguments(int argc, char* argv[])
 {
@@ -24,6 +25,9 @@ std::optional<fs::path> check_arguments(int argc, char* argv[])
 void menu_loop(const fs::path& database_file_path)
 {
     mdb::Database& database = ms::Singleton<mdb::Database>::get_instance();
+    const auto observer = mo::make_observer<mdb::Event>([](const mdb::Event& event) {
+        std::cout << "Event received: " << (event == mdb::Event::Insert ? "Insert" : "Clear") << '\n';
+    });
 
     mm::Menu menu{
         mm::MenuOption{'Q', "Quit the application", option_quit},
@@ -35,7 +39,24 @@ void menu_loop(const fs::path& database_file_path)
         mm::MenuOption{'E', "Find anything which name Equals 'Supreme NTM'",
                        [&] { return option_find_anything_which_name_equals(database, "Supreme NTM"); }},
         mm::MenuOption{'C', "Find anything which name Contains 'ol'",
-                       [&] { return option_find_anything_which_name_contains(database, "ol"); }}};
+                       [&] { return option_find_anything_which_name_contains(database, "ol"); }},
+        mm::MenuOption{'X', "Attach the observer",
+                       [&] {
+                           std::cout << "Attaching observer\n";
+                           database.attach_observer(observer);
+                           return true;
+                       }},
+        mm::MenuOption{'Y', "Detach the observer",
+                       [&] {
+                           std::cout << "Detaching observer\n";
+                           database.detach_observer(observer);
+                           return true;
+                       }},
+        mm::MenuOption{'Z', "Clear the database", [&] {
+                           std::cout << "Clearing database\n";
+                           database.clear();
+                           return true;
+                       }}};
 
     mm::menu_loop(menu);
 }

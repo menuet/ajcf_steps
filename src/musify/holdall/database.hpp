@@ -2,6 +2,7 @@
 #pragma once
 
 #include "musical_thing.hpp"
+#include "observer.hpp"
 #include "singleton.hpp"
 #include <string_view>
 #include <unordered_map>
@@ -46,6 +47,12 @@ namespace musify { namespace database {
         DuplicateThing = 6,
     };
 
+    enum class Event
+    {
+        Insert,
+        Clear,
+    };
+
     class Database
     {
         friend class singleton::Singleton<Database>;
@@ -82,12 +89,26 @@ namespace musify { namespace database {
         void clear()
         {
             m_things.clear();
+            m_observable.notify(Event::Clear);
         }
 
         InsertionResult insert_thing(std::unique_ptr<MusicalThing> thing);
 
+        template <typename ObserverT>
+        void attach_observer(const ObserverT& observer)
+        {
+            m_observable.attach(observer);
+        }
+
+        template <typename ObserverT>
+        void detach_observer(const ObserverT& observer)
+        {
+            m_observable.detach(observer);
+        }
+
     private:
         std::multimap<std::string, std::unique_ptr<MusicalThing>> m_things{};
+        observer::Observable<Event> m_observable{};
     };
 
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);

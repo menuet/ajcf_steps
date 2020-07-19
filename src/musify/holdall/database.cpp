@@ -70,6 +70,7 @@ namespace musify { namespace database {
         if (find_thing(thing->name(), typeid(*thing)))
             return InsertionResult::DuplicateThing;
         m_things.emplace(thing->name(), std::move(thing));
+        m_observable.notify(Event::Insert);
         return InsertionResult::Ok;
     }
 
