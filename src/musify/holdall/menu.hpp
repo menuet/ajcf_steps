@@ -2,10 +2,11 @@
 #pragma once
 
 #include <algorithm>
-#include <functional>
 #include <cctype>
+#include <functional>
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -24,11 +25,13 @@ namespace musify::menu {
 
     inline void display_menu(const Menu& menu)
     {
-        std::cout << "Please select an option\n";
+        std::stringstream ss;
+        ss << "Please select an option\n";
         for (const auto& option : menu)
         {
-            std::cout << option.shortcut << " -> " << option.description << "\n";
+            ss << option.shortcut << " -> " << option.description << "\n";
         }
+        std::cout << ss.str();
     }
 
     inline Command ask_user_choice(const Menu& menu)
