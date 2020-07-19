@@ -3,7 +3,9 @@
 
 #include <type_traits>
 #include <algorithm>
+#include <iterator>
 #include <memory>
+#include <mutex>
 #include <vector>
 
 namespace musify::observer {
@@ -71,5 +73,62 @@ namespace musify::observer {
         return std::make_shared<ObserverFromCallable<EventT, std::decay_t<CallableT>>>(
             std::forward<CallableT>(callable));
     }
+
+    template <typename EventT>
+    struct ThreadSafeObservable
+    {
+        using Observers = std::vector<std::weak_ptr<Observer<EventT>>>;
+
+        void attach(const std::shared_ptr<Observer<EventT>>& observer)
+        {
+            std::lock_guard lock{m_mutex};
+
+            auto new_spobservers = std::make_shared<Observers>();
+
+            *new_spobservers = *m_spobservers;
+            new_spobservers->push_back(observer);
+
+            m_spobservers = new_spobservers;
+        }
+
+        void detach(const std::shared_ptr<Observer<EventT>>& observer)
+        {
+            std::lock_guard lock{m_mutex};
+
+            const auto iter =
+                std::find_if(m_spobservers->begin(), m_spobservers->end(), [&](const auto& weak_observer) {
+                    const auto shared_observer = weak_observer.lock();
+                    return shared_observer && shared_observer == observer;
+                });
+            if (iter == m_spobservers->end())
+                return;
+            const auto observer_index = iter - m_spobservers->begin();
+
+            auto new_spobservers = std::make_shared<Observers>();
+            *new_spobservers = *m_spobservers;
+            new_spobservers->erase(new_spobservers->begin() + observer_index);
+
+            m_spobservers = new_spobservers;
+        }
+
+        void notify(const EventT& event)
+        {
+            const auto spobservers = [this] {
+                std::lock_guard lock{m_mutex};
+                return m_spobservers;
+            }();
+
+            for (const auto& weak_observer : *spobservers)
+            {
+                const auto shared_observer = weak_observer.lock();
+                if (shared_observer)
+                    shared_observer->update(event);
+            }
+        }
+
+    private:
+        std::mutex m_mutex{};
+        std::shared_ptr<Observers> m_spobservers{std::make_shared<Observers>()};
+    };
 
 } // namespace musify::observer

@@ -108,7 +108,7 @@ namespace musify { namespace database {
 
     private:
         std::multimap<std::string, std::unique_ptr<MusicalThing>> m_things{};
-        observer::Observable<Event> m_observable{};
+        observer::ThreadSafeObservable<Event> m_observable{};
     };
 
     LoadingResult load_database(const std::filesystem::path& database_file_path, Database& database);
