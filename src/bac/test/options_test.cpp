@@ -4,8 +4,6 @@
 #include <catch2/catch.hpp>
 #include <sstream>
 
-#if 0
-
 TEST_CASE("TEST bac::display_menu_and_configure")
 {
     // ARRANGE
@@ -89,5 +87,3 @@ TEST_CASE("TEST bac::load_options")
     REQUIRE(options.minimum_allowed_character == '1');
     REQUIRE(options.maximum_allowed_character == '8');
 }
-
-#endif

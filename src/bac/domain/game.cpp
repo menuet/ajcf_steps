@@ -5,10 +5,9 @@
 
 namespace bac {
 
-    void configure_options(std::ostream& out, [[maybe_unused]] std::istream& in, [[maybe_unused]] Options& options)
+    void configure_options(std::ostream& out, std::istream& in, Options& options)
     {
-        // TODO ... call display_menu_and_configure(...)
-        out << "\n!!! TODO configure options !!!\n\n";
+        display_menu_and_configure(out, in, options);
     }
 
     void human_plays_against_computer(std::ostream& out, [[maybe_unused]] std::istream& in,
