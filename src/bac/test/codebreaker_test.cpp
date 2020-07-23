@@ -5,8 +5,6 @@
 #include <catch2/catch.hpp>
 #include <sstream>
 
-#if 0
-
 TEST_CASE("TEST bac::ask_attempt WHEN attempt is invalid and then is valid")
 {
     // ARRANGE
@@ -31,5 +29,3 @@ TEST_CASE("TEST bac::ask_attempt WHEN attempt is invalid and then is valid")
             "What is your guess #01 (5 characters between 'A' and 'H')\n"
             "? ");
 }
-
-#endif

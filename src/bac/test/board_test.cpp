@@ -4,8 +4,6 @@
 #include <catch2/catch.hpp>
 #include <sstream>
 
-#if 0
-
 TEST_CASE("TEST bac::display_board WHEN codebreaker has not yet played")
 {
     // ARRANGE
@@ -76,5 +74,3 @@ TEST_CASE("TEST bac::display_board WHEN codebreaker has given some attempts")
             "| #01      B C D E F |   0   |  4   |\n"
             "-------------------------------------\n");
 }
-
-#endif

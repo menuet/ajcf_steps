@@ -13,8 +13,8 @@ namespace bac {
     void human_plays_against_computer(std::ostream& out, [[maybe_unused]] std::istream& in,
                                       [[maybe_unused]] const Options& options)
     {
-        // TODO: ... call play(...)
-        out << "\n!!! TODO Human vs Computer !!!\n\n";
+        State state{std::make_unique<HumanCodebreaker>()};
+        play(out, in, options, state);
     }
 
     void computer_plays_against_computer(std::ostream& out, [[maybe_unused]] std::istream& in,

@@ -5,8 +5,6 @@
 #include <catch2/catch.hpp>
 #include <sstream>
 
-#if 0
-
 TEST_CASE("TEST bac::generate_random_secret_code")
 {
     // ARRANGE
@@ -145,5 +143,3 @@ TEST_CASE("TEST bac::has_codebreaker_won WHEN codebreaker is not yet winning")
     // ASSERT
     REQUIRE(!result);
 }
-
-#endif
