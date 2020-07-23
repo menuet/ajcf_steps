@@ -4,8 +4,6 @@
 #include <algorithm>
 #include <numeric>
 
-#if 0
-
 static unsigned int power(unsigned int number, unsigned int exponent)
 {
     int power_of_number = 1;
@@ -80,5 +78,3 @@ TEST_CASE("TEST bac::remove_incompatible_codes_from_possible_solutions")
     REQUIRE(possible_solutions.codes.size() == 1);
     REQUIRE(possible_solutions.codes[0].value == "HABCD");
 }
-
-#endif

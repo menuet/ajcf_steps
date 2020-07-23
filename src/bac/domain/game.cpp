@@ -20,8 +20,8 @@ namespace bac {
     void computer_plays_against_computer(std::ostream& out, [[maybe_unused]] std::istream& in,
                                          [[maybe_unused]] const Options& options)
     {
-        // TODO: ... call play(...)
-        out << "\n!!! TODO Computer vs Computer !!!\n\n";
+        State state{std::make_unique<ComputerCodebreaker>()};
+        play(out, in, options, state);
     }
 
     void display_menu_and_play(std::ostream& out, std::istream& in)
