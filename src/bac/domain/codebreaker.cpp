@@ -83,7 +83,7 @@ namespace bac {
 
         {
             DurationLogger dl{out};
-            attempt = pick_random_attempt(m_remaining_possible_codes);
+            attempt = pick_random_attempt(options, attempts_and_feedbacks, m_remaining_possible_codes);
         }
 
         out << "[Codebreaker] Trying " << attempt.value << "\n";

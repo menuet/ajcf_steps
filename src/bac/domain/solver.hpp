@@ -16,7 +16,8 @@ namespace bac {
     PossibleCodes generate_all_possible_codes(const Options& options);
 
     // Randomly choose the IA's attempt among the list of possible codes
-    Code pick_random_attempt(const PossibleCodes& possible_solutions);
+    Code pick_random_attempt(const Options& options, const std::vector<AttemptAndFeedback>& attempts_and_feedbacks,
+                             const PossibleCodes& possible_solutions);
 
     // Given the codemaker's feedback,
     // Remove from all the possibles codes the ones that are not possible anymore

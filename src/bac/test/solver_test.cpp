@@ -56,10 +56,12 @@ TEST_CASE("TEST bac::generate_all_possible_codes")
 TEST_CASE("TEST bac::pick_random_attempt")
 {
     // ARRANGE
+    bac::Options options{};
+    std::vector<bac::AttemptAndFeedback> attempts_and_feedbacks{};
     bac::PossibleCodes possible_solutions{{{"ABCDE"}, {"DEFGH"}, {"HABCD"}}};
 
     // ACT
-    const auto code = bac::pick_random_attempt(possible_solutions);
+    const auto code = bac::pick_random_attempt(options, attempts_and_feedbacks, possible_solutions);
 
     // ASSERT
     REQUIRE((code.value == "ABCDE" || code.value == "DEFGH" || code.value == "HABCD"));

@@ -5,8 +5,24 @@
 #include <algorithm>
 #include <cassert>
 #include <execution>
+#include <optional>
 
 namespace bac {
+
+    Code generate_code_with_all_characters(const Options& options)
+    {
+        char round_robin_char = options.minimum_allowed_character;
+        Code code{};
+        code.value.reserve(options.number_of_characters_per_code);
+        for (unsigned int i = 0; i != options.number_of_characters_per_code; ++i)
+        {
+            code.value.push_back(round_robin_char);
+            if (++round_robin_char > options.maximum_allowed_character)
+                round_robin_char = options.minimum_allowed_character;
+        }
+
+        return code;
+    }
 
     Code generate_minimum_code(const Options& options)
     {
@@ -39,6 +55,9 @@ namespace bac {
 
         PossibleCodes possible_solutions;
 
+        if (options.codebreaker_strategy == CodebreakerStrategy::Lazy)
+            return possible_solutions;
+
         while (code.value != maximum_code.value)
         {
             possible_solutions.codes.push_back(code);
@@ -49,8 +68,57 @@ namespace bac {
         return possible_solutions;
     }
 
-    Code pick_random_attempt(const PossibleCodes& possible_solutions)
+    bool is_compatible_code(const Code& code, const std::vector<AttemptAndFeedback>& attempts_and_feedbacks)
     {
+        assert(!attempts_and_feedbacks.empty());
+        const auto compatible = std::all_of(
+            attempts_and_feedbacks.begin(), attempts_and_feedbacks.end(), [&](const auto& attempt_and_feedback) {
+                const auto feedback = compare_attempt_with_secret_code(attempt_and_feedback.attempt, code);
+                return feedback.bulls == attempt_and_feedback.feedback.bulls &&
+                       feedback.cows == attempt_and_feedback.feedback.cows;
+            });
+        return compatible;
+    }
+
+    Code find_compatible_code(const Code& startup_code, const Options& options,
+                              const std::vector<AttemptAndFeedback>& attempts_and_feedbacks)
+    {
+        auto code = startup_code;
+
+        Code maximum_code = generate_maximum_code(options);
+
+        while (code.value != maximum_code.value)
+        {
+            if (is_compatible_code(code, attempts_and_feedbacks))
+                return code;
+            generate_next_code(options, code);
+        }
+
+        if (is_compatible_code(code, attempts_and_feedbacks))
+            return code;
+
+        code = generate_minimum_code(options);
+
+        while (code.value != startup_code.value)
+        {
+            if (is_compatible_code(code, attempts_and_feedbacks))
+                return code;
+            generate_next_code(options, code);
+        }
+
+        return startup_code;
+    }
+
+    Code pick_random_attempt(const Options& options, const std::vector<AttemptAndFeedback>& attempts_and_feedbacks,
+                             const PossibleCodes& possible_solutions)
+    {
+        if (options.codebreaker_strategy == CodebreakerStrategy::Lazy)
+        {
+            if (attempts_and_feedbacks.empty())
+                return generate_code_with_all_characters(options);
+            return find_compatible_code(attempts_and_feedbacks.back().attempt, options, attempts_and_feedbacks);
+        }
+
         using index_type = decltype(possible_solutions.codes.size());
         assert(possible_solutions.codes.size() > 0);
         const auto index =
@@ -76,10 +144,17 @@ namespace bac {
                                                            const AttemptAndFeedback& attempt_and_feedback,
                                                            PossibleCodes& possible_solutions)
     {
-        if (options.codebreaker_strategy == CodebreakerStrategy::ParallelBruteForce)
-            remove_incompatible_codes_with_policy(std::execution::par, attempt_and_feedback, possible_solutions);
-        else
+        switch (options.codebreaker_strategy)
+        {
+        case CodebreakerStrategy::SimpleBruteForce:
             remove_incompatible_codes_with_policy(std::execution::seq, attempt_and_feedback, possible_solutions);
+            break;
+        case CodebreakerStrategy::ParallelBruteForce:
+            remove_incompatible_codes_with_policy(std::execution::par, attempt_and_feedback, possible_solutions);
+            break;
+        case CodebreakerStrategy::Lazy:
+            break;
+        }
     }
 
 } // namespace bac
