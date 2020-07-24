@@ -5,12 +5,20 @@
 
 namespace bac {
 
+    enum class CodebreakerStrategy
+    {
+        SimpleBruteForce,
+        ParallelBruteForce,
+        Lazy
+    };
+
     struct Options
     {
         unsigned int max_number_of_attempts{12};
         unsigned int number_of_characters_per_code{5};
         char minimum_allowed_character{'A'};
         char maximum_allowed_character{'H'};
+        CodebreakerStrategy codebreaker_strategy{CodebreakerStrategy::SimpleBruteForce};
     };
 
     // Display the menu for displaying/configuring/saving/loading the options

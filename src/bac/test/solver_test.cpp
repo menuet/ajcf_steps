@@ -68,11 +68,12 @@ TEST_CASE("TEST bac::pick_random_attempt")
 TEST_CASE("TEST bac::remove_incompatible_codes_from_possible_solutions")
 {
     // ARRANGE
+    bac::Options options{};
     bac::PossibleCodes possible_solutions{{{"ABCDE"}, {"DEFGH"}, {"HABCD"}}};
     const bac::AttemptAndFeedback attempt_and_feedback{{"DABEC"}, {2, 2}};
 
     // ACT
-    bac::remove_incompatible_codes_from_possible_solutions(attempt_and_feedback, possible_solutions);
+    bac::remove_incompatible_codes_from_possible_solutions(options, attempt_and_feedback, possible_solutions);
 
     // ASSERT
     REQUIRE(possible_solutions.codes.size() == 1);

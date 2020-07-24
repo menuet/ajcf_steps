@@ -4,6 +4,7 @@
 #include <bac/util/random.hpp>
 #include <algorithm>
 #include <cassert>
+#include <execution>
 
 namespace bac {
 
@@ -57,16 +58,28 @@ namespace bac {
         return possible_solutions.codes[index];
     }
 
-    void remove_incompatible_codes_from_possible_solutions(const AttemptAndFeedback& attempt_and_feedback,
-                                                           PossibleCodes& possible_solutions)
+    template <typename ExecutionPolicyT>
+    static void remove_incompatible_codes_with_policy(ExecutionPolicyT execution_policy,
+                                                      const AttemptAndFeedback& attempt_and_feedback,
+                                                      PossibleCodes& possible_solutions)
     {
-        const auto iter_new_end =
-            std::remove_if(possible_solutions.codes.begin(), possible_solutions.codes.end(), [&](const auto& code) {
+        const auto iter_new_end = std::remove_if(
+            execution_policy, possible_solutions.codes.begin(), possible_solutions.codes.end(), [&](const auto& code) {
                 const auto feedback = compare_attempt_with_secret_code(attempt_and_feedback.attempt, code);
                 return feedback.bulls != attempt_and_feedback.feedback.bulls ||
                        feedback.cows != attempt_and_feedback.feedback.cows;
             });
         possible_solutions.codes.erase(iter_new_end, possible_solutions.codes.end());
+    }
+
+    void remove_incompatible_codes_from_possible_solutions(const Options& options,
+                                                           const AttemptAndFeedback& attempt_and_feedback,
+                                                           PossibleCodes& possible_solutions)
+    {
+        if (options.codebreaker_strategy == CodebreakerStrategy::ParallelBruteForce)
+            remove_incompatible_codes_with_policy(std::execution::par, attempt_and_feedback, possible_solutions);
+        else
+            remove_incompatible_codes_with_policy(std::execution::seq, attempt_and_feedback, possible_solutions);
     }
 
 } // namespace bac

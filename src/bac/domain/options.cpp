@@ -8,6 +8,20 @@
 
 namespace bac {
 
+    const char* to_string(CodebreakerStrategy strategy)
+    {
+        switch (strategy)
+        {
+        case CodebreakerStrategy::SimpleBruteForce:
+            return "SimpleBruteForce";
+        case CodebreakerStrategy::ParallelBruteForce:
+            return "ParallelBruteForce";
+        case CodebreakerStrategy::Lazy:
+            return "Lazy";
+        }
+        return "";
+    }
+
     void display_menu_and_configure(std::ostream& out, std::istream& in, Options& options)
     {
         Menu menu{{'0', "Back to main menu", [&] { return QuitMenu::Yes; }},
@@ -42,9 +56,21 @@ namespace bac {
                        save_options(file_output_stream, options);
                        return QuitMenu::No;
                    }},
-                  {'6', "Load options", [&] {
+                  {'6', "Load options",
+                   [&] {
                        std::ifstream file_input_stream{"options.txt"};
                        load_options(file_input_stream, options);
+                       return QuitMenu::No;
+                   }},
+                  {'7', "Modify Codebreaker Strategy", [&] {
+                       out << "Enter the Codebreaker Strategy 0 (Brute), 1 (Parallel), 2 (Lazy): ";
+                       const auto strategy_opt = ask<int>(in);
+                       if (strategy_opt)
+                       {
+                           const auto strategy = *strategy_opt;
+                           if (strategy >= 0 && strategy <= 2)
+                               options.codebreaker_strategy = static_cast<CodebreakerStrategy>(strategy);
+                       }
                        return QuitMenu::No;
                    }}};
 
@@ -54,6 +80,7 @@ namespace bac {
             out << "Number of characters in a code: " << options.number_of_characters_per_code << "\n";
             out << "Range of allowed characters: from '" << options.minimum_allowed_character << "' to '"
                 << options.maximum_allowed_character << "'\n";
+            out << "Codebreaker strategy: " << to_string(options.codebreaker_strategy) << "\n";
             out << "Please select a menu option to configure the game options";
         };
 
@@ -66,6 +93,7 @@ namespace bac {
         output_file_stream << "number_of_characters_per_code=" << options.number_of_characters_per_code << "\n";
         output_file_stream << "minimum_allowed_character=" << options.minimum_allowed_character << "\n";
         output_file_stream << "maximum_allowed_character=" << options.maximum_allowed_character << "\n";
+        output_file_stream << "codebreaker_strategy=" << static_cast<int>(options.codebreaker_strategy) << "\n";
         return output_file_stream.good();
     }
 
@@ -85,6 +113,13 @@ namespace bac {
                 iss >> options.minimum_allowed_character;
             else if (field_name == "maximum_allowed_character")
                 iss >> options.maximum_allowed_character;
+            else if (field_name == "codebreaker_strategy")
+            {
+                int strategy{};
+                iss >> strategy;
+                if (strategy >= 0 && strategy <= 2)
+                    options.codebreaker_strategy = static_cast<CodebreakerStrategy>(strategy);
+            }
         }
         return input_file_stream.good() || input_file_stream.eof();
     }

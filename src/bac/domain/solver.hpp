@@ -20,7 +20,8 @@ namespace bac {
 
     // Given the codemaker's feedback,
     // Remove from all the possibles codes the ones that are not possible anymore
-    void remove_incompatible_codes_from_possible_solutions(const AttemptAndFeedback& attempt_and_feedback,
+    void remove_incompatible_codes_from_possible_solutions(const Options& options,
+                                                           const AttemptAndFeedback& attempt_and_feedback,
                                                            PossibleCodes& possible_solutions);
 
 } // namespace bac
