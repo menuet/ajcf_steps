@@ -35,6 +35,15 @@ namespace bac {
     // Test if the codebreaker has won
     bool has_codebreaker_won(const Options& options, const Board& board);
 
+    enum class GameStatus
+    {
+        Pending,
+        CodemakerWon,
+        CodebreakerWon,
+    };
+
+    GameStatus game_status(const Options& options, const Board& board);
+
     // Play the game between the codemaker and the codebreaker
     // Algorithm:
     // - Ask the codemaker to choose a secret code

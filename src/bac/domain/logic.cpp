@@ -85,6 +85,18 @@ namespace bac {
                board.attempts_and_feedbacks.back().feedback.bulls == options.number_of_characters_per_code;
     }
 
+    GameStatus game_status(const Options& options, const Board& board)
+    {
+        if (board.attempts_and_feedbacks.size() != 0)
+        {
+            if (board.attempts_and_feedbacks.back().feedback.bulls == options.number_of_characters_per_code)
+                return GameStatus::CodebreakerWon;
+            if (board.attempts_and_feedbacks.size() >= options.max_number_of_attempts)
+                return GameStatus::CodemakerWon;
+        }
+        return GameStatus::Pending;
+    }
+
     void play(std::ostream& out, std::istream& in, const Options& options, State& state)
     {
         out << "\n#################################\nLet's play!\n";

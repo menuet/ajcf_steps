@@ -4,7 +4,9 @@
 #include <bac/util/random.hpp>
 #include <algorithm>
 #include <cassert>
+#ifdef __cpp_lib_execution
 #include <execution>
+#endif
 #include <optional>
 
 namespace bac {
@@ -126,6 +128,7 @@ namespace bac {
         return possible_solutions.codes[index];
     }
 
+#ifdef __cpp_lib_execution
     template <typename ExecutionPolicyT>
     static void remove_incompatible_codes_with_policy(ExecutionPolicyT execution_policy,
                                                       const AttemptAndFeedback& attempt_and_feedback,
@@ -139,6 +142,19 @@ namespace bac {
             });
         possible_solutions.codes.erase(iter_new_end, possible_solutions.codes.end());
     }
+#else
+    static void remove_incompatible_codes_without_policy(const AttemptAndFeedback& attempt_and_feedback,
+                                                         PossibleCodes& possible_solutions)
+    {
+        const auto iter_new_end =
+            std::remove_if(possible_solutions.codes.begin(), possible_solutions.codes.end(), [&](const auto& code) {
+                const auto feedback = compare_attempt_with_secret_code(attempt_and_feedback.attempt, code);
+                return feedback.bulls != attempt_and_feedback.feedback.bulls ||
+                       feedback.cows != attempt_and_feedback.feedback.cows;
+            });
+        possible_solutions.codes.erase(iter_new_end, possible_solutions.codes.end());
+    }
+#endif
 
     void remove_incompatible_codes_from_possible_solutions(const Options& options,
                                                            const AttemptAndFeedback& attempt_and_feedback,
@@ -146,12 +162,19 @@ namespace bac {
     {
         switch (options.codebreaker_strategy)
         {
+#ifdef __cpp_lib_execution
         case CodebreakerStrategy::SimpleBruteForce:
             remove_incompatible_codes_with_policy(std::execution::seq, attempt_and_feedback, possible_solutions);
             break;
         case CodebreakerStrategy::ParallelBruteForce:
             remove_incompatible_codes_with_policy(std::execution::par, attempt_and_feedback, possible_solutions);
             break;
+#else
+        case CodebreakerStrategy::SimpleBruteForce:
+        case CodebreakerStrategy::ParallelBruteForce:
+            remove_incompatible_codes_without_policy(attempt_and_feedback, possible_solutions);
+            break;
+#endif
         case CodebreakerStrategy::Lazy:
             break;
         }
