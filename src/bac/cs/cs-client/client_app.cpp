@@ -48,8 +48,21 @@ namespace bac::cs::client {
     private:
         void begin()
         {
-            // TODO
-            m_client.send_message("PING"); // TODO: remove
+            switch (m_config.player_role)
+            {
+            case proto::PlayerRole::Codebreaker:
+                m_codemaker_actor.reset();
+                m_codebreaker_actor = std::make_unique<actors::CodebreakerActor>();
+                m_game_actor.begin(*m_codebreaker_actor, std::cout, m_config.options);
+                break;
+            case proto::PlayerRole::Codemaker:
+                m_codebreaker_actor.reset();
+                m_codemaker_actor = std::make_unique<actors::CodemakerActor>();
+                m_game_actor.begin(*m_codemaker_actor, std::cout, m_config.options);
+                break;
+            }
+            m_client.send_message(
+                proto::message_to_string(proto::Payload_RequestBegin{m_config.player_role, m_config.options}));
         }
 
         template <typename PayloadT>
@@ -57,14 +70,23 @@ namespace bac::cs::client {
         {
         }
 
-        void payload_handler([[maybe_unused]] const proto::Payload_RequestAttempt& payload)
+        void payload_handler(const proto::Payload_RequestAttempt& payload)
         {
-            // TODO
+            m_game_actor.request_attempt(std::cout, std::cin, payload.feedback_opt, payload.secret_code_opt,
+                                         [this](GameStatus status, Code attempt) {
+                                             if (status == GameStatus::Pending)
+                                                 m_client.send_message(
+                                                     proto::message_to_string(proto::Payload_RequestFeedback{attempt}));
+                                         });
         }
 
-        void payload_handler([[maybe_unused]] const proto::Payload_RequestFeedback& payload)
+        void payload_handler(const proto::Payload_RequestFeedback& payload)
         {
-            // TODO
+            m_game_actor.request_feedback(
+                std::cout, payload.attempt, [this](Feedback feedback, std::optional<Code> secret_code_opt) {
+                    m_client.send_message(
+                        proto::message_to_string(proto::Payload_RequestAttempt{feedback, secret_code_opt}));
+                });
         }
 
         Config m_config;

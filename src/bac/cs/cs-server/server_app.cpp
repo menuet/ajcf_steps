@@ -79,30 +79,51 @@ namespace bac::cs::server {
         using ConnectionAndGame = std::pair<net::Connection, std::shared_ptr<actors::GameActor>>;
 
         template <typename PayloadT>
-        void payload_handler(const net::Connection& connection, std::shared_ptr<actors::GameActor>&, const PayloadT&)
+        void payload_handler(const net::Connection&, std::shared_ptr<actors::GameActor>&, const PayloadT&)
         {
-            connection.send_message("PONG"); // TODO: remove
         }
 
-        void payload_handler([[maybe_unused]] const net::Connection& connection,
-                             [[maybe_unused]] std::shared_ptr<actors::GameActor>& game_actor,
-                             [[maybe_unused]] const proto::Payload_RequestBegin& payload)
+        void payload_handler(const net::Connection& connection, std::shared_ptr<actors::GameActor>& game_actor,
+                             const proto::Payload_RequestBegin& payload)
         {
-            // TODO
+            switch (payload.client_role)
+            {
+            case proto::PlayerRole::Codebreaker:
+                game_actor = std::make_shared<actors::GameActor>();
+                game_actor->begin(m_codemaker_actor, std::cout, payload.options);
+                connection.send_message(proto::message_to_string(proto::Payload_RequestAttempt{}));
+                break;
+            case proto::PlayerRole::Codemaker:
+                game_actor = std::make_shared<actors::GameActor>();
+                game_actor->begin(m_codebreaker_actor, std::cout, payload.options);
+                game_actor->request_attempt(
+                    std::cout, std::cin, std::nullopt, std::nullopt, [connection](GameStatus, Code attempt) {
+                        connection.send_message(proto::message_to_string(proto::Payload_RequestFeedback{attempt}));
+                    });
+                break;
+            }
         }
 
-        void payload_handler([[maybe_unused]] const net::Connection& connection,
-                             [[maybe_unused]] std::shared_ptr<actors::GameActor>& game_actor,
-                             [[maybe_unused]] const proto::Payload_RequestAttempt& payload)
+        void payload_handler(const net::Connection& connection, std::shared_ptr<actors::GameActor>& game_actor,
+                             const proto::Payload_RequestAttempt& payload)
         {
-            // TODO
+            game_actor->request_attempt(std::cout, std::cin, payload.feedback_opt, payload.secret_code_opt,
+                                        [connection](GameStatus status, Code attempt) {
+                                            if (status == GameStatus::Pending)
+                                                connection.send_message(
+                                                    proto::message_to_string(proto::Payload_RequestFeedback{attempt}));
+                                        });
         }
 
-        void payload_handler([[maybe_unused]] const net::Connection& connection,
-                             [[maybe_unused]] std::shared_ptr<actors::GameActor>& game_actor,
-                             [[maybe_unused]] const proto::Payload_RequestFeedback& payload)
+        void payload_handler(const net::Connection& connection, std::shared_ptr<actors::GameActor>& game_actor,
+                             const proto::Payload_RequestFeedback& payload)
         {
-            // TODO
+            game_actor->request_feedback(
+                std::cout, payload.attempt,
+                [connection, game_actor](Feedback feedback, std::optional<Code> secret_code_opt) {
+                    connection.send_message(
+                        proto::message_to_string(proto::Payload_RequestAttempt{feedback, secret_code_opt}));
+                });
         }
 
         Config m_config;
